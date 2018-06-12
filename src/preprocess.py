@@ -93,7 +93,7 @@ class preprocess():
     """Checking mapping quality with Qualimap"""
     def qualimap(self):
         self.ifVerbose("Running qualimap BAM QC")
-        self.runCommand(['qualimap', 'bamqc', '-bam', 'temp/'+self.name+'_sorted.BAM', '-outformat', 'HTML',
+        self.runCommand(['qualimap', 'bamqc', '-bam', os.path.join(self.outdir, 'bam/'+self.name+'_sorted.BAM'), '-outformat', 'HTML',
                          '-outdir ', os.path.join(self.outdir, self.name)], None)
 
     """Parse through report file obtained from Qualimap or Refseq_masher"""
