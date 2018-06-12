@@ -1,0 +1,25 @@
+<tool id="parse_refseq_masher" name="Parse refseq_masher output" version="0.0.0">
+    <description>and output a list of outliers</description>
+    <command interpreter="python">
+        parser.py -r $reference -i $report
+    </command>
+    <inputs>
+        <param name="report" type="data" format="tabular" label="Tabular Refseq_masher report" help="" optional="false" />
+        <param name="reference" type="data" format="fasta" label="FASTA reference file" help="" optional="false" />
+    </inputs>
+    <outputs>
+        <data name="output_file" format="tabular" />
+    </outputs>
+
+    <tests>
+        <test>
+            <param name="reference" value="reference.fna.gz" ftype="fasta" />
+            <param name="report" value="test.tsv" ftype="tabular" />
+            <output name="output" value="output.tsv" ftype="tabular" />
+        </test>
+    </tests>
+
+    <help>
+
+    </help>
+</tool>
