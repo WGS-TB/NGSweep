@@ -27,15 +27,21 @@ organism = "%s %s" % (meta[1].decode('utf-8'), meta[2].decode('utf-8'))
 
 """Open output file"""
 output = open("outlier_list.csv", "w")
--
+
+outlier_flag = False
+accession = ""
+
 with open(args.input) as csvfile:
     reader = csv.DictReader(csvfile, delimiter='\t')
     next(reader, None)
 
     for row in reader:
+        if row['sample'] == accession and outlier_flag:
+            continue
         accession = row['sample']
         taxonomy_split = row['top_taxonomy_name'].split()
         taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
 
         if taxonomy.lower() != organism.lower() or float(row['distance']) > 1e-3:
             output.write("%s\n" % accession)
+            outlier_flag = True
