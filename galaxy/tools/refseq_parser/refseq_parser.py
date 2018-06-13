@@ -22,7 +22,10 @@ if len(sys.argv) == 1:
 args = parser.parse_args()
 
 """Determining organism"""
-meta = gzip.open(args.reference, 'rb').readline().split()
+try:
+    meta = gzip.open(args.reference, 'rb').readline().split()
+except:
+    meta = open(args.reference, 'rb').readline().split()
 organism = "%s %s" % (meta[1].decode('utf-8'), meta[2].decode('utf-8'))
 
 """Open output file"""
