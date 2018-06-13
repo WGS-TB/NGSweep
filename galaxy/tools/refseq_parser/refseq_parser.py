@@ -28,9 +28,6 @@ except:
     meta = open(args.reference, 'rb').readline().split()
 organism = "%s %s" % (meta[1].decode('utf-8'), meta[2].decode('utf-8'))
 
-"""Open output file"""
-output = open("outlier_list.csv", "w")
-
 outlier_flag = False
 accession = ""
 
@@ -46,5 +43,5 @@ with open(args.input) as csvfile:
         taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
 
         if taxonomy.lower() != organism.lower() or float(row['distance']) > 1e-3:
-            output.write("%s\n" % accession)
+            print(accession)
             outlier_flag = True
