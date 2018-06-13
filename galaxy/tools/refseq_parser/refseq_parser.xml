@@ -1,7 +1,7 @@
 <tool id="parse_refseq_masher" name="Parse refseq_masher output" version="0.0.0">
     <description>and output a list of outliers</description>
     <command interpreter="python">
-        parser.py -r $reference -i $report
+        refseq_parser.py -r $reference -i $report
     </command>
     <inputs>
         <param name="report" type="data" format="tabular" label="Tabular Refseq_masher report" help="" optional="false" />
