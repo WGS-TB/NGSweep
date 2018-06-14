@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Usage: python parser.py [OPTIONS] -r <reference genome> -i <report location>
+# Usage: python parser.py [OPTIONS] -r <reference genome> -i [reports]
 
 import sys
 import csv
@@ -12,8 +12,8 @@ parser = ap.ArgumentParser(prog='outlier-parser', conflict_handler='resolve',
 
 
 input = parser.add_argument_group('Input', '')
-input.add_argument('-i', '--input', required=True, metavar="STRING", help="Reports")
-input.add_argument('-r', '--reference', required=True, metavar="STRING", help="Reference genome in FASTA format")
+input.add_argument('-r', '--reference', required=True, help="Reference genome in FASTA format")
+input.add_argument('-i', '--input', nargs='+', required=True, help="Tab-delimited RefSeq Masher reports")
 
 if len(sys.argv) == 1:
     parser.print_usage()
@@ -32,17 +32,18 @@ output = open("outlier_list.tsv", "w")
 outlier_flag = False
 accession = ""
 
-with open(args.input) as csvfile:
-    reader = csv.DictReader(csvfile, delimiter='\t')
-    next(reader, None)
+for report in args.input: 
+    with open(report) as csvfile:
+        reader = csv.DictReader(csvfile, delimiter='\t')
+        next(reader, None)
 
-    for row in reader:
-        if row['sample'] == accession and outlier_flag:
-            continue
-        accession = row['sample']
-        taxonomy_split = row['top_taxonomy_name'].split()
-        taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
+        for row in reader:
+            if row['sample'] == accession and outlier_flag:
+                continue
+            accession = row['sample']
+            taxonomy_split = row['top_taxonomy_name'].split()
+            taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
 
-        if taxonomy.lower() != organism.lower() or float(row['distance']) > 1e-3:
-            output.write("%s\n" % accession)
-            outlier_flag = True
+            if taxonomy.lower() != organism.lower() or float(row['distance']) > 1e-3:
+                output.write("%s\n" % accession)
+                outlier_flag = True
