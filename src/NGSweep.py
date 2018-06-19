@@ -51,8 +51,8 @@ if __name__ == '__main__':
     output.add_argument('--keepfiles', action='store_true', help="Keep intermediate files")
 
     aligners = parser.add_argument_group('Aligner', '')
-    aligners.add_argument('--smalt', action='store_true', help="Run the Smalt aligner (Default)")
-    # aligners.add_argument('--bowtie', action='store_true', help="Run Bowtie aligner")
+    aligners.add_argument('--bwa', action='store_true', help="Run BWA aligner [Default]")
+    aligners.add_argument('--smalt', action='store_true', help="Run Smalt aligner")
 
     optional = parser.add_argument_group('Optional', '')
     optional.add_argument('-v', '--verbose', action='store_true', help="Print status updates during run to stdout"
@@ -113,8 +113,6 @@ if __name__ == '__main__':
         parser.print_usage()
         sys.exit(2)
 
-    # Todo: Give a choice of aligners
-
     """Run pipeline"""
     directory = os.path.abspath(args.input)
 
@@ -133,7 +131,10 @@ if __name__ == '__main__':
 
     # Index reference using smalt
     if args.map:
-        preprocess.smalt_index(args.reference, args.verbose, args.outdir)
+        if args.smalt:
+            preprocess.smalt_index(args.reference, args.verbose, args.outdir)
+        else:
+            preprocess.bwa_index(args.reference, args.verbose, args.outdir)
 
     # Determining goal organism
     organism = preprocess.parseReference(args.verbose, args.reference)
@@ -196,7 +197,10 @@ if __name__ == '__main__':
             pipeline.run_kraken()
 
         if args.map:
-            pipeline.smalt_map()
+            if args.smalt:
+                pipeline.smalt_map()
+            else:
+                pipeline.bwa_map()
             pipeline.samtools()
             pipeline.qualimap()
 

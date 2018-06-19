@@ -76,13 +76,23 @@ class preprocess():
 
     """Mapping with Smalt"""
     def smalt_map(self):
-        self.ifVerbose("Mapping reads to reference")
+        self.ifVerbose("Mapping reads to reference using Smalt")
         if self.paired:
             self.runCommand(['smalt', 'map', '-i', '1000', '-j', '20', '-l', 'pe', '-o', self.name+".BAM",
                              'reference', self.input, self.input2], os.path.join(self.outdir, 'bam'))
         else:
             self.runCommand(['smalt', 'map', '-o', self.name+".BAM", 'reference', self.input],
                             os.path.join(self.outdir, 'bam'))
+
+    """Mapping with BWA"""
+    def bwa_map(self):
+        self.ifVerbose("Mapping reads to reference using BWA")
+        if self.paired:
+            self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2,
+                             '|', 'samtools', '-S','-b', '>', self.name+".BAM"], os.path.join(self.outdir, 'bam'))
+        else:
+            self.runCommand(['bwa', 'mem', 'reference', self.input,
+                             '|', 'samtools' '-S', '-b', '>', self.name+".BAM"], os.path.join(self.outdir, 'bam'))
 
     """Sort BAM files using Samtools"""
     def samtools(self):
@@ -186,10 +196,25 @@ def smalt_index(reference, verbose, outdir):
     logger = logging.getLogger()
 
     if verbose:
-        logger.info("Creating index file for reference sequence")
+        logger.info("Creating index file for reference sequence using Smalt")
 
     process = subprocess.Popen(['smalt', 'index', '-k', '13', '-s', '6', 'reference', reference],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.join(outdir, 'bam'))
+    out,err = process.communicate()
+
+    if out:
+        logger.info("Standard output: \n" + out.decode('utf-8') + "\n")
+    if err:
+        logger.info("Standard error: \n" + err.decode('utf-8') + "\n")
+
+def bwa_index(reference, verbose, outdir):
+    logger = logging.getLogger()
+
+    if verbose:
+        logger.info("Creating index file for reference sequence using BWA")
+
+    process = subprocess.Popen(['bwa', 'index', '-p', 'reference', reference],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.join(outdir, 'bam'))
     out,err = process.communicate()
 
     if out:
