@@ -169,6 +169,8 @@ if __name__ == '__main__':
             if preprocess.check_pairs(accession, file_type, args.input, args.verbose) == 1:
                 continue
 
+            preprocess.check_headers(accession, file_type, args.input, args.verbose)
+
             pipeline = preprocess.preprocess(organism, os.path.join(directory, accession+'_1'+file_type), accession, args.outdir,
                                   args.reference, args.paired, os.path.join(directory, accession+'_2'+file_type),
                                   args.log, args.verbose, args.map, args.outlier, args.trim, args.kraken, args.db,

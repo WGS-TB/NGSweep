@@ -142,6 +142,7 @@ class preprocess():
 """Check mate pair consistency"""
 def check_pairs(accession, file_type, input, verbose):
     logger = logging.getLogger()
+
     if verbose:
         logger.info("Checking consistency of mate pairs")
 
@@ -151,6 +152,34 @@ def check_pairs(accession, file_type, input, verbose):
         return 1
     logger.info("OK")
     return 0
+
+"""Check mate pair headers (in case fastq files were not downloaded with the -origfmt flag using fastq-dump)"""
+def check_headers(accession, file_type, input, verbose):
+    logger = logging.getLogger()
+
+    if verbose:
+        logger.info("Checking mate pair headers")
+
+    flag = False
+
+    for i in range(1,3):
+        new_file = ""
+        with gzip.open(os.path.join(input, accession+"_%d"+file_type) % i, 'r') as mate:
+            for line in mate.readlines():
+                line = line.decode("utf-8")
+                if "%s" % accession in line:
+                    flag = True
+                    split = line.split()
+                    header = "%s %s" % (split[0][:-2], split[1]+"/%d\n" % i)
+                    new_file += header
+                    continue
+                new_file += line
+        with gzip.open(os.path.join(input, accession+"_%d"+file_type) % i, 'wb') as mate:
+            mate.write(str.encode(new_file))
+
+    if flag and verbose:
+        logger.info("Headers have been modified to ensure uniformity")
+
 
 """Indexing reference with Smalt"""
 def smalt_index(reference, verbose, outdir):
