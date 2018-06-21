@@ -30,13 +30,14 @@ class preprocess():
         self.logger = logging.getLogger()
 
     """Shell Execution"""
-    def runCommand(self, command, directory):
+    def runCommand(self, command, directory, write_output):
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=directory)
         out,err = process.communicate()
 
         if out:
+            if write_output:
+                return out.decode('utf-8')
             self.logger.info("Standard output: \n" + out.decode('utf-8') + "\n")
-            return out
         if err:
             self.logger.info("Standard error: \n" + err.decode('utf-8') + "\n")
 
@@ -44,7 +45,7 @@ class preprocess():
     def refseq_masher(self):
         self.ifVerbose("Running Refseq_masher matching")
         self.runCommand(['refseq_masher', 'matches', '-o', self.name+'.match', '--output-type', 'tab', self.input],
-                        os.path.join(self.outdir, 'mash'))
+                        os.path.join(self.outdir, 'mash'), write_output=False)
 
     """Running Kraken"""
     def run_kraken(self):
@@ -53,10 +54,10 @@ class preprocess():
         if self.paired:
             self.runCommand(['kraken', '--db', self.db, '--classified-out', self.name + '.classified', '--paired',
                              '--output', self.name + '.kraken', self.input, self.input2],
-                             os.path.join(self.outdir, 'kraken'))
+                             os.path.join(self.outdir, 'kraken'), write_output=False)
         else:
             self.runCommand(['kraken', '--db', self.db, '--classified-out', self.name + '.classified', '--output',
-                             self.name + '.kraken', self.input], os.path.join(self.outdir, 'kraken'))
+                             self.name + '.kraken', self.input], os.path.join(self.outdir, 'kraken'), write_output=False)
 
     """Run Trim_galore to preprocess fastq files"""
     def trim_galore(self):
@@ -65,14 +66,15 @@ class preprocess():
         if self.paired:
             self.runCommand(['trim_galore', '--fastqc_args', "\"--outdir " +
                              os.path.join(self.outdir, "trimmed_fastq/fastqc") + "\"", '--gzip', '-o',
-                             os.path.join(self.outdir, "trimmed_fastq"), '--paired', self.input, self.input2], None)
+                             os.path.join(self.outdir, "trimmed_fastq"), '--paired', self.input, self.input2],
+                            directory=None, write_output=False)
 
             self.input = os.path.join(os.path.join(self.outdir, "trimmed_fastq"), self.name + "_1_val_1.fq.gz")
             self.input2 = self.input = os.path.join(os.path.join(self.outdir, "trimmed_fastq"), self.name + "_2_val_2.fq.gz")
 
         else:
             self.runCommand(['trim_galore', '--fastqc', '--gzip', '-o',
-                             os.path.join(self.outdir, "trimmed_fastq"), self.input], None)
+                             os.path.join(self.outdir, "trimmed_fastq"), self.input], directory=None, write_output=False)
 
             self.input = os.path.join(os.path.join(self.outdir, "trimmed_fastq"), self.name + "_val.fq.gz")
 
@@ -81,10 +83,10 @@ class preprocess():
         self.ifVerbose("Mapping reads to reference using Smalt")
         if self.paired:
             self.runCommand(['smalt', 'map', '-i', '1000', '-j', '20', '-l', 'pe', '-o', self.name+".BAM",
-                             'reference', self.input, self.input2], os.path.join(self.outdir, 'bam'))
+                             'reference', self.input, self.input2], os.path.join(self.outdir, 'bam'), write_output=False)
         else:
             self.runCommand(['smalt', 'map', '-o', self.name+".BAM", 'reference', self.input],
-                            os.path.join(self.outdir, 'bam'))
+                            os.path.join(self.outdir, 'bam'), write_output=False)
 
     """Mapping with BWA"""
     def bwa_map(self):
@@ -93,30 +95,30 @@ class preprocess():
             with open('%s.BAM' % self.name, 'w') as bam:
                 if self.paired:
                     sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2],
-                                                 os.path.join(self.outdir, 'bam'))
+                                                 os.path.join(self.outdir, 'bam'), write_output=True)
                     sam.write(sam_output)
                     bam_output = self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM"],
-                                                 os.path.join(self.outdir, 'bam'))
+                                                 os.path.join(self.outdir, 'bam'), write_output=True)
                     bam.write(bam_output)
                 else:
                     sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, '>', self.name+".SAM"],
-                                                 os.path.join(self.outdir, 'bam'))
+                                                 os.path.join(self.outdir, 'bam'), write_output=True)
                     sam.write(sam_output)
                     bam_output = self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM", '>', self.name+".BAM"],
-                                                 os.path.join(self.outdir, 'bam'))
+                                                 os.path.join(self.outdir, 'bam'), write_output=True)
                     bam.write(bam_output)
 
     """Sort BAM files using Samtools"""
     def samtools(self):
         self.ifVerbose("Sorting BAM files using Samtools")
         self.runCommand(['samtools', 'sort', '-o', self.name+'_sorted.BAM', self.name+'.BAM'],
-                        os.path.join(self.outdir, 'bam'))
+                        os.path.join(self.outdir, 'bam'), write_output=False)
 
     """Checking mapping quality with Qualimap"""
     def qualimap(self):
         self.ifVerbose("Running qualimap BAM QC")
         self.runCommand(['qualimap', 'bamqc', '-bam', os.path.join(self.outdir, 'bam/'+self.name+'_sorted.BAM'), '-outformat', 'HTML',
-                         '-outdir ', os.path.join(self.outdir, self.name)], None)
+                         '-outdir ', os.path.join(self.outdir, self.name)], directory=None, write_output=False)
 
     """Parse through report file obtained from Qualimap or Refseq_masher"""
     def parser(self):
@@ -153,9 +155,9 @@ class preprocess():
     """Move outlier sample"""
     def move_outlier(self):
         self.ifVerbose("Moving %s to outlier folder" % self.name)
-        self.runCommand(['cp', self.input, os.path.join(self.outdir, 'outliers')], None)
+        self.runCommand(['cp', self.input, os.path.join(self.outdir, 'outliers')], directory=None, write_output=False)
         if self.paired:
-            self.runCommand(['cp', self.input2, os.path.join(self.outdir, 'outliers')], None)
+            self.runCommand(['cp', self.input2, os.path.join(self.outdir, 'outliers')], directory=None, write_output=False)
 
     def ifVerbose(self, msg):
         if self.verbose:
@@ -186,14 +188,14 @@ def check_headers(accession, file_type, input, verbose):
 
     firstLine = gzip.open(os.path.join(input, accession+"_1"+file_type), 'r').readline()
     pattern = re.compile("^@SRR[0-9]*.1 [A-Z,0-9,_,:]*/1")
-    if pattern.match(firstLine.decode("utf-8")):
+    if pattern.match(firstLine.decode('utf-8')):
         return
 
     for i in range(1,3):
         new_file = ""
         with gzip.open(os.path.join(input, accession+"_%d"+file_type) % i, 'r') as mate:
             for line in mate.readlines():
-                line = line.decode("utf-8")
+                line = line.decode('utf-8')
                 if "%s" % accession in line:
                     flag = True
                     split = line.split()
