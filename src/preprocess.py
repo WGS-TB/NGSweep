@@ -186,7 +186,7 @@ def check_headers(accession, file_type, input, verbose):
 
     firstLine = gzip.open(os.path.join(input, accession+"_1"+file_type), 'r').readline()
     pattern = re.compile("^@SRR[0-9]*.1 [A-Z,0-9,_,:]*/1")
-    if pattern.match(firstLine):
+    if pattern.match(firstLine.decode("utf-8")):
         return
 
     for i in range(1,3):
