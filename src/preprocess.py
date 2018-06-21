@@ -36,7 +36,7 @@ class preprocess():
 
         if out:
             if write_output:
-                return out.decode('utf-8')
+                return out
             self.logger.info("Standard output: \n" + out.decode('utf-8') + "\n")
         if err:
             self.logger.info("Standard error: \n" + err.decode('utf-8') + "\n")
@@ -91,8 +91,8 @@ class preprocess():
     """Mapping with BWA"""
     def bwa_map(self):
         self.ifVerbose("Mapping reads to reference using BWA")
-        with open('mapping/%s.SAM' % self.name, 'w') as sam:
-            with open('mapping/%s.BAM' % self.name, 'w') as bam:
+        with open('output/mapping/%s.SAM' % self.name, 'wb') as sam:
+            with open('output/mapping/%s.BAM' % self.name, 'wb') as bam:
                 if self.paired:
                     sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2],
                                                  os.path.join(self.outdir, 'mapping'), write_output=True)
