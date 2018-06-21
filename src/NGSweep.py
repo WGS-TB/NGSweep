@@ -123,7 +123,7 @@ if __name__ == '__main__':
     if args.trim:
         subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'trimmed_fastq')])
     if args.map:
-        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'bam')])
+        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'mapping')])
         subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'qualimap')])
     if args.kraken:
         subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'kraken')])
