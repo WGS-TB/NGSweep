@@ -184,7 +184,7 @@ if __name__ == '__main__':
 
         if args.outlier:
             pipeline.refseq_masher()
-            pipeline.parser()
+            pipeline.parser(refseq=True, qualimap=False)
 
             # Check if the file was an outlier
             if glob.glob(os.path.join(os.path.join(args.outdir, 'outliers'), accession)+'*'):
@@ -203,6 +203,7 @@ if __name__ == '__main__':
                 pipeline.bwa_map()
             pipeline.samtools()
             pipeline.qualimap()
+            pipeline.parser(refseq=False, qualimap=True)
 
     preprocess.multiqc(args.verbose, args.outdir)
 

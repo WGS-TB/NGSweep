@@ -121,21 +121,22 @@ class preprocess():
                          '-outdir ', os.path.join(self.outdir, self.name)], directory=None, write_output=False)
 
     """Parse through report file obtained from Qualimap or Refseq_masher"""
-    def parser(self):
+    def parser(self, refseq, qualimap):
         if self.outlier:
             outlier_flag = False
 
-            self.ifVerbose("Parsing Refseq_masher report")
-            with open(os.path.join(os.path.join(self.outdir, 'mash'), self.name + '.match')) as csvfile:
-                for row in csv.DictReader(csvfile, delimiter='\t'):
-                    taxonomy_split = row['top_taxonomy_name'].split()
-                    taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
+            if refseq:
+                self.ifVerbose("Parsing Refseq_masher report")
+                with open(os.path.join(os.path.join(self.outdir, 'mash'), self.name + '.match')) as csvfile:
+                    for row in csv.DictReader(csvfile, delimiter='\t'):
+                        taxonomy_split = row['top_taxonomy_name'].split()
+                        taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
 
-                    if taxonomy.lower() != self.organism.lower() or float(row['distance']) > 1e-3:
-                        outlier_flag = True
-                        break
+                        if taxonomy.lower() != self.organism.lower() or float(row['distance']) > 1e-3:
+                            outlier_flag = True
+                            break
 
-            if self.map and not outlier_flag:
+            if qualimap:
                 self.ifVerbose("Parsing Qualimap report")
                 report = open(self.outdir+'/'+self.name+'/genome_results.txt')
 
