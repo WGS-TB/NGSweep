@@ -6,6 +6,7 @@ import gzip
 import glob
 import csv
 import logging
+import re
 
 class preprocess():
 
@@ -88,11 +89,15 @@ class preprocess():
     def bwa_map(self):
         self.ifVerbose("Mapping reads to reference using BWA")
         if self.paired:
-            self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2,
-                             '|', 'samtools', '-S','-b', '>', self.name+".BAM"], os.path.join(self.outdir, 'bam'))
+            self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2, '>', self.name+".SAM"],
+                            os.path.join(self.outdir, 'bam'))
+            self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM", '>', self.name+".BAM"],
+                            os.path.join(self.outdir, 'bam'))
         else:
-            self.runCommand(['bwa', 'mem', 'reference', self.input,
-                             '|', 'samtools' '-S', '-b', '>', self.name+".BAM"], os.path.join(self.outdir, 'bam'))
+            self.runCommand(['bwa', 'mem', 'reference', self.input, '>', self.name+".SAM"],
+                                     os.path.join(self.outdir, 'bam'))
+            self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM", '>', self.name+".BAM"],
+                            os.path.join(self.outdir, 'bam'))
 
     """Sort BAM files using Samtools"""
     def samtools(self):
@@ -171,6 +176,11 @@ def check_headers(accession, file_type, input, verbose):
         logger.info("Checking mate pair headers")
 
     flag = False
+
+    firstLine = gzip.open(os.path.join(input, accession+"_1"+file_type), 'r').readline()
+    pattern = re.compile("^@SRR[0-9]*.1 [A-Z,0-9,_,:]*/1")
+    if pattern.match(firstLine):
+        return
 
     for i in range(1,3):
         new_file = ""
