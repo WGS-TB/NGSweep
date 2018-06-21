@@ -83,41 +83,41 @@ class preprocess():
         self.ifVerbose("Mapping reads to reference using Smalt")
         if self.paired:
             self.runCommand(['smalt', 'map', '-i', '1000', '-j', '20', '-l', 'pe', '-o', self.name+".BAM",
-                             'reference', self.input, self.input2], os.path.join(self.outdir, 'bam'), write_output=False)
+                             'reference', self.input, self.input2], os.path.join(self.outdir, 'mapping'), write_output=False)
         else:
             self.runCommand(['smalt', 'map', '-o', self.name+".BAM", 'reference', self.input],
-                            os.path.join(self.outdir, 'bam'), write_output=False)
+                            os.path.join(self.outdir, 'mapping'), write_output=False)
 
     """Mapping with BWA"""
     def bwa_map(self):
         self.ifVerbose("Mapping reads to reference using BWA")
-        with open('%s.SAM' % self.name, 'w') as sam:
-            with open('%s.BAM' % self.name, 'w') as bam:
+        with open('mapping/%s.SAM' % self.name, 'w') as sam:
+            with open('mapping/%s.BAM' % self.name, 'w') as bam:
                 if self.paired:
                     sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2],
-                                                 os.path.join(self.outdir, 'bam'), write_output=True)
+                                                 os.path.join(self.outdir, 'mapping'), write_output=True)
                     sam.write(sam_output)
                     bam_output = self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM"],
-                                                 os.path.join(self.outdir, 'bam'), write_output=True)
+                                                 os.path.join(self.outdir, 'mapping'), write_output=True)
                     bam.write(bam_output)
                 else:
                     sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, '>', self.name+".SAM"],
-                                                 os.path.join(self.outdir, 'bam'), write_output=True)
+                                                 os.path.join(self.outdir, 'mapping'), write_output=True)
                     sam.write(sam_output)
                     bam_output = self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM", '>', self.name+".BAM"],
-                                                 os.path.join(self.outdir, 'bam'), write_output=True)
+                                                 os.path.join(self.outdir, 'mapping'), write_output=True)
                     bam.write(bam_output)
 
     """Sort BAM files using Samtools"""
     def samtools(self):
         self.ifVerbose("Sorting BAM files using Samtools")
         self.runCommand(['samtools', 'sort', '-o', self.name+'_sorted.BAM', self.name+'.BAM'],
-                        os.path.join(self.outdir, 'bam'), write_output=False)
+                        os.path.join(self.outdir, 'mapping'), write_output=False)
 
     """Checking mapping quality with Qualimap"""
     def qualimap(self):
         self.ifVerbose("Running qualimap BAM QC")
-        self.runCommand(['qualimap', 'bamqc', '-bam', os.path.join(self.outdir, 'bam/'+self.name+'_sorted.BAM'), '-outformat', 'HTML',
+        self.runCommand(['qualimap', 'bamqc', '-bam', os.path.join(self.outdir, 'mapping/'+self.name+'_sorted.BAM'), '-outformat', 'HTML',
                          '-outdir ', os.path.join(self.outdir, self.name)], directory=None, write_output=False)
 
     """Parse through report file obtained from Qualimap or Refseq_masher"""
@@ -218,7 +218,7 @@ def smalt_index(reference, verbose, outdir):
         logger.info("Creating index file for reference sequence using Smalt")
 
     process = subprocess.Popen(['smalt', 'index', '-k', '13', '-s', '6', 'reference', reference],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.join(outdir, 'bam'))
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.join(outdir, 'mapping'))
     out,err = process.communicate()
 
     if out:
@@ -233,7 +233,7 @@ def bwa_index(reference, verbose, outdir):
         logger.info("Creating index file for reference sequence using BWA")
 
     process = subprocess.Popen(['bwa', 'index', '-p', 'reference', reference],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.join(outdir, 'bam'))
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.join(outdir, 'mapping'))
     out,err = process.communicate()
 
     if out:
@@ -274,7 +274,7 @@ def cleanup(verbose, outdir):
     if verbose:
         logger.info("Deleting temporary files")
 
-    temp_folders = ['mash', 'bam', 'qualimap']
+    temp_folders = ['mash', 'mapping', 'qualimap']
 
     for folder in temp_folders:
         process = subprocess.Popen(['rm', '-r', folder],
