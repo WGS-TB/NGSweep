@@ -36,6 +36,7 @@ class preprocess():
 
         if out:
             self.logger.info("Standard output: \n" + out.decode('utf-8') + "\n")
+            return out
         if err:
             self.logger.info("Standard error: \n" + err.decode('utf-8') + "\n")
 
@@ -88,16 +89,22 @@ class preprocess():
     """Mapping with BWA"""
     def bwa_map(self):
         self.ifVerbose("Mapping reads to reference using BWA")
-        if self.paired:
-            self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2, '>', self.name+".SAM"],
-                            os.path.join(self.outdir, 'bam'))
-            self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM", '>', self.name+".BAM"],
-                            os.path.join(self.outdir, 'bam'))
-        else:
-            self.runCommand(['bwa', 'mem', 'reference', self.input, '>', self.name+".SAM"],
-                                     os.path.join(self.outdir, 'bam'))
-            self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM", '>', self.name+".BAM"],
-                            os.path.join(self.outdir, 'bam'))
+        with open('%s.SAM' % self.name, 'w') as sam:
+            with open('%s.BAM' % self.name, 'w') as bam:
+                if self.paired:
+                    sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2],
+                                                 os.path.join(self.outdir, 'bam'))
+                    sam.write(sam_output)
+                    bam_output = self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM"],
+                                                 os.path.join(self.outdir, 'bam'))
+                    bam.write(bam_output)
+                else:
+                    sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, '>', self.name+".SAM"],
+                                                 os.path.join(self.outdir, 'bam'))
+                    sam.write(sam_output)
+                    bam_output = self.runCommand(['samtools', 'view', '-Sb', self.name+".SAM", '>', self.name+".BAM"],
+                                                 os.path.join(self.outdir, 'bam'))
+                    bam.write(bam_output)
 
     """Sort BAM files using Samtools"""
     def samtools(self):
