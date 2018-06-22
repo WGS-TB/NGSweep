@@ -138,7 +138,7 @@ class preprocess():
 
             if qualimap:
                 self.ifVerbose("Parsing Qualimap report")
-                report = open(self.outdir+'/'+self.name+'/genome_results.txt')
+                report = open(self.outdir+'/qualimap/'+self.name+'/genome_results.txt')
 
                 for line in report:
                     if "number of mapped reads" in line:
