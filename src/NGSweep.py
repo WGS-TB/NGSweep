@@ -23,6 +23,7 @@ import subprocess
 import logging
 import argparse as ap
 import preprocess
+from mpi4py import MPI
 
 
 """Command line interface"""
@@ -139,7 +140,22 @@ if __name__ == '__main__':
     # Determining goal organism
     organism = preprocess.parseReference(args.verbose, args.reference)
 
-    for file in os.listdir(directory):
+    # MPI setup
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+    if rank == 0:
+        jobs = [file for file in os.listdir(directory)]
+        jobs = [jobs[i::size] for i in range(size)]
+    else:
+        jobs = None
+
+    jobs = comm.scatter(jobs, root=0)
+
+    # for file in os.listdir(directory):
+    for file in jobs:
+        print(rank)
         filename = file
 
         if args.paired and "_2" in filename:
