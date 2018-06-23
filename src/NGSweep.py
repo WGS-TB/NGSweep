@@ -136,17 +136,17 @@ if __name__ == '__main__':
         subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'kraken')])
     subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'reports')])
 
-    # Index reference using smalt
-    if args.map:
-        if args.smalt:
-            preprocess.smalt_index(args.reference, args.verbose, args.outdir)
-        else:
-            preprocess.bwa_index(args.reference, args.verbose, args.outdir)
-
     # Determining goal organism
     organism = preprocess.parseReference(args.verbose, args.reference)
 
     if rank == 0:
+        # Index reference using smalt
+        if args.map:
+            if args.smalt:
+                preprocess.smalt_index(args.reference, args.verbose, args.outdir)
+            else:
+                preprocess.bwa_index(args.reference, args.verbose, args.outdir)
+
         jobs = [file for file in os.listdir(directory)]
         jobs = [jobs[i::size] for i in range(size)]
     else:
@@ -156,7 +156,6 @@ if __name__ == '__main__':
 
     # for file in os.listdir(directory):
     for file in jobs:
-        print("%d, %s" % (rank, args.input))
         filename = file
 
         if args.paired and "_2" in filename:
@@ -187,7 +186,7 @@ if __name__ == '__main__':
             if preprocess.check_pairs(accession, file_type, args.input, args.verbose) == 1:
                 continue
 
-            #preprocess.check_headers(accession, file_type, args.input, args.verbose)
+            preprocess.check_headers(accession, file_type, args.input, args.verbose)
 
             pipeline = preprocess.preprocess(organism, os.path.join(directory, accession+'_1'+file_type), accession, args.outdir,
                                   args.reference, args.paired, os.path.join(directory, accession+'_2'+file_type),
