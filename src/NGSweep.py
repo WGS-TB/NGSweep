@@ -28,6 +28,12 @@ from mpi4py import MPI
 
 """Command line interface"""
 if __name__ == '__main__':
+    # MPI setup
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+
     parser = ap.ArgumentParser(prog='preprocessing-pipeline', conflict_handler='resolve',
                                description="Preprocessing pipeline - Eliminate outliers from datasets")
 
@@ -91,7 +97,7 @@ if __name__ == '__main__':
     # Log file setup
     if args.log:
         logger.info("Log file initiated")
-        log = logging.FileHandler(os.path.join(args.outdir, 'log.txt'))
+        log = logging.FileHandler(os.path.join(args.outdir, 'log%d.txt' % rank))
         log.setFormatter(formatter)
         logger.addHandler(log)
         args.verbose = True
@@ -140,11 +146,6 @@ if __name__ == '__main__':
     # Determining goal organism
     organism = preprocess.parseReference(args.verbose, args.reference)
 
-    # MPI setup
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    size = comm.Get_size()
-
     if rank == 0:
         jobs = [file for file in os.listdir(directory)]
         jobs = [jobs[i::size] for i in range(size)]
@@ -155,7 +156,7 @@ if __name__ == '__main__':
 
     # for file in os.listdir(directory):
     for file in jobs:
-        print(rank)
+        print("%d, %s" % (rank, args.input))
         filename = file
 
         if args.paired and "_2" in filename:
@@ -181,12 +182,12 @@ if __name__ == '__main__':
 
         if args.verbose:
             logger.info("Working on %s" % accession)
-
+        
         if args.paired:
             if preprocess.check_pairs(accession, file_type, args.input, args.verbose) == 1:
                 continue
 
-            preprocess.check_headers(accession, file_type, args.input, args.verbose)
+            #preprocess.check_headers(accession, file_type, args.input, args.verbose)
 
             pipeline = preprocess.preprocess(organism, os.path.join(directory, accession+'_1'+file_type), accession, args.outdir,
                                   args.reference, args.paired, os.path.join(directory, accession+'_2'+file_type),
