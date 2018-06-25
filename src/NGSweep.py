@@ -225,3 +225,12 @@ if __name__ == '__main__':
 
     if not args.keepfiles:
         preprocess.cleanup(args.verbose, args.outdir)
+
+    # Conglomerate all log files
+    log = open("log.txt", 'a')
+
+    for index,file in enumerate(glob.glob(os.path.join(args.outdir, "log*.txt"))):
+        log.write("PROCESS #%d\n" % index)
+        log.write("-" * 25)
+        log.write(file+"\n\n")
+        os.remove(file)
