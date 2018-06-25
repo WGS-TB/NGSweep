@@ -220,6 +220,8 @@ if __name__ == '__main__':
             pipeline.samtools()
             pipeline.qualimap()
             pipeline.parser(refseq=False, qualimap=True)
+            
+    comm.Barrier()
 
     preprocess.multiqc(args.verbose, args.outdir)
 
