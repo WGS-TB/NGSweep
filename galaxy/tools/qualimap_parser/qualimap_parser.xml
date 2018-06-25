@@ -1,0 +1,23 @@
+<tool id="parse_qualimap" name="Parse Qualimap reports" version="0.0.0">
+    <description>and output a list of outliers</description>
+    <command interpreter="python">
+        refseq_parser.py -r $reference -i #for $report in $reports# $report #end for#
+    </command>
+    <inputs>
+        <param name="reports" type="data" format="html" label="HTML Qualimap reports" help="" optional="false" multiple="True" />
+    </inputs>
+    <outputs>
+        <data name="output_file" label="Outliers from dataset" format="tabular" from_work_dir="outlier_list.tsv"/>
+    </outputs>
+
+    <tests>
+        <test>
+            <param name="report" value="test.tsv" ftype="tabular" />
+            <output name="output" value="output.tsv" ftype="tabular" />
+        </test>
+    </tests>
+
+    <help>
+
+    </help>
+</tool>
