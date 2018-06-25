@@ -1,0 +1,15 @@
+<tool id="normalize_headers" name="Normalize fastq headers" version="0.0.0">
+    <command interpreter="python">
+        refseq_parser.py -r $reference -i #for $report in $reports# $report #end for#
+    </command>
+    <inputs>
+        <param name="dataset" type="data" format="fastq" label="HTML Qualimap reports" help="" optional="false" multiple="True" />
+    </inputs>
+    <outputs>
+        <data name="output_file" label="Outliers from dataset" format="fasq"/>
+    </outputs>
+
+    <help>
+
+    </help>
+</tool>
