@@ -71,7 +71,7 @@ if __name__ == '__main__':
         args.outdir = os.path.join(os.getcwd(), "output")
 
     if not os.path.exists(args.outdir):
-        subprocess.call(['mkdir', '-p', args.outdir])
+        os.makedirs(args.outdir)
 
     if os.path.exists(args.outdir) and not os.path.isdir(args.outdir):
         print("The output path is not a directory.")
@@ -118,16 +118,16 @@ if __name__ == '__main__':
 
     # Create directories
     if args.outlier:
-        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'outliers')])
-        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'mash')])
+        os.makedirs(os.path.join(args.outdir, 'outliers'))
+        os.makedirs(os.path.join(args.outdir, 'mash'))
     if args.trim:
-        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'trimmed_fastq')])
+        os.makedirs(os.path.join(args.outdir, 'trimmed_fastq'))
     if args.map:
-        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'mapping')])
-        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'qualimap')])
+        os.makedirs(os.path.join(args.outdir, 'mapping'))
+        os.makedirs(os.path.join(args.outdir, 'qualimap'))
     if args.kraken:
-        subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'kraken')])
-    subprocess.call(['mkdir', '-p', os.path.join(args.outdir, 'reports')])
+        os.makedirs(s.path.join(args.outdir, 'kraken'))
+    os.makedirs(os.path.join(args.outdir, 'reports'))
 
     # Index reference using smalt
     if args.map:
@@ -170,7 +170,9 @@ if __name__ == '__main__':
             if preprocess.check_pairs(accession, file_type, args.input, args.verbose) == 1:
                 continue
 
-            preprocess.check_headers(accession, file_type, args.input, args.verbose)
+            if preprocess.check_headers(accession, file_type, args.input, args.verbose) == 1:
+                logger.critical("%s has an undefined error in the header.  Please check the headers of the paired reads"
+                                "to ensure uniformity." % accession)
 
             pipeline = preprocess.preprocess(organism, os.path.join(directory, accession+'_1'+file_type), accession, args.outdir,
                                   args.reference, args.paired, os.path.join(directory, accession+'_2'+file_type),
