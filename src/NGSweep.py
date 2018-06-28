@@ -171,7 +171,7 @@ if __name__ == '__main__':
                 continue
 
             if preprocess.check_headers(accession, file_type, args.input, args.verbose) == 1:
-                logger.critical("%s has an undefined error in the header.  Please check the headers of the paired reads"
+                logger.critical("%s has an undefined error in the header.  Please check the headers of the paired reads "
                                 "to ensure uniformity." % accession)
 
             pipeline = preprocess.preprocess(organism, os.path.join(directory, accession+'_1'+file_type), accession, args.outdir,

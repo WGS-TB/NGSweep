@@ -187,28 +187,42 @@ def check_headers(accession, file_type, input, verbose):
 
     flag = False
 
-    firstLine = gzip.open(os.path.join(input, accession+"_1"+file_type), 'r').readline()
-    pattern = re.compile("^@SRR[0-9]*.1 [A-Z,0-9,_,:]*/1")
-    if pattern.match(firstLine.decode('utf-8')):
-        return
+    firstLineForward = gzip.open(os.path.join(input, accession+"_1"+file_type), 'r').readline()
+    firstLineBackward = gzip.open(os.path.join(input, accession+"_2"+file_type), 'r').readline()
 
-    for i in range(1,3):
-        new_file = ""
-        with gzip.open(os.path.join(input, accession+"_%d"+file_type) % i, 'r') as mate:
-            for line in mate.readlines():
-                line = line.decode('utf-8')
-                if "%s" % accession in line:
-                    flag = True
-                    split = line.split()
-                    header = "%s %s" % (split[0][:-2], split[1]+"/%d\n" % i)
-                    new_file += header
-                    continue
-                new_file += line
-        with gzip.open(os.path.join(input, accession+"_%d"+file_type) % i, 'wb') as mate:
-            mate.write(str.encode(new_file))
+    if firstLineForward == firstLineBackward: # If the headers are the same (unmodified)
+        return 0
 
-    if flag and verbose:
-        logger.info("Headers have been modified to ensure uniformity")
+    forwardPaired = firstLineForward.find("/1".encode())
+    backwardPaired = firstLineBackward.find("/2".encode())
+
+    if firstLineForward[:forwardPaired] == firstLineBackward[:backwardPaired]: # Paired read identifiers present
+        return 0
+
+    if re.search('(\.1){2}', firstLineForward.decode('utf-8')):
+        if flag and verbose:
+            logger.info("The headers are modified NCBI SRA identifiers")
+
+        for i in range(1,3):
+            new_file = ""
+            with gzip.open(os.path.join(input, accession+"_%d"+file_type) % i, 'r') as mate:
+                for line in mate.readlines():
+                    line = line.decode('utf-8')
+                    if "%s" % accession in line:
+                        flag = True
+                        split = line.split()
+                        header = "%s %s" % (split[0][:-2], split[1]+"/%d\n" % i)
+                        new_file += header
+                        continue
+                    new_file += line
+            with gzip.open(os.path.join(input, accession+"_%d"+file_type) % i, 'wb') as mate:
+                mate.write(str.encode(new_file))
+
+        if flag and verbose:
+            logger.info("Headers have been edited to ensure uniformity")
+        return 0
+
+    return 1
 
 
 """Indexing reference with Smalt"""
