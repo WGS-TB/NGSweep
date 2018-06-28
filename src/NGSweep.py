@@ -22,6 +22,7 @@ import glob
 import logging
 import argparse as ap
 import preprocess
+from mpi4py import MPI
 
 """Create directory"""
 def mkdir(directory):
@@ -30,6 +31,12 @@ def mkdir(directory):
 
 """Command line interface"""
 if __name__ == '__main__':
+    # MPI setup
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+
     parser = ap.ArgumentParser(prog='preprocessing-pipeline', conflict_handler='resolve',
                                description="Preprocessing pipeline - Eliminate outliers from datasets")
 
@@ -92,7 +99,7 @@ if __name__ == '__main__':
     # Log file setup
     if args.log:
         logger.info("Log file initiated")
-        log = logging.FileHandler(os.path.join(args.outdir, 'log.txt'))
+        log = logging.FileHandler(os.path.join(args.outdir, 'log%d.txt' % rank))
         log.setFormatter(formatter)
         logger.addHandler(log)
         args.verbose = True
@@ -131,17 +138,26 @@ if __name__ == '__main__':
         mkdir(os.path.join(args.outdir, 'kraken'))
     mkdir(os.path.join(args.outdir, 'reports'))
 
-    # Index reference using smalt
-    if args.map:
-        if args.smalt:
-            preprocess.smalt_index(args.reference, args.verbose, args.outdir)
-        else:
-            preprocess.bwa_index(args.reference, args.verbose, args.outdir)
-
     # Determining goal organism
     organism = preprocess.parseReference(args.verbose, args.reference)
 
-    for file in os.listdir(directory):
+    if rank == 0:
+        # Index reference using smalt
+        if args.map:
+            if args.smalt:
+                preprocess.smalt_index(args.reference, args.verbose, args.outdir)
+            else:
+                preprocess.bwa_index(args.reference, args.verbose, args.outdir)
+
+        jobs = [file for file in os.listdir(directory)]
+        jobs = [jobs[i::size] for i in range(size)]
+    else:
+        jobs = None
+
+    jobs = comm.scatter(jobs, root=0)
+
+    # for file in os.listdir(directory):
+    for file in jobs:
         filename = file
 
         if args.paired and "_2" in filename:
@@ -167,7 +183,7 @@ if __name__ == '__main__':
 
         if args.verbose:
             logger.info("Working on %s" % accession)
-
+        
         if args.paired:
             if preprocess.check_pairs(accession, file_type, args.input, args.verbose) == 1:
                 continue
@@ -208,8 +224,19 @@ if __name__ == '__main__':
             pipeline.samtools()
             pipeline.qualimap()
             pipeline.parser(refseq=False, qualimap=True)
+            
+    comm.Barrier()
 
     preprocess.multiqc(args.verbose, args.outdir)
 
     if not args.keepfiles:
         preprocess.cleanup(args.verbose, args.outdir)
+
+    # Conglomerate all log files
+    log = open("log.txt", 'a')
+
+    for index,file in enumerate(glob.glob(os.path.join(args.outdir, "log*.txt"))):
+        log.write("PROCESS #%d\n" % index)
+        log.write("-" * 25)
+        log.write(file+"\n\n")
+        os.remove(file)
