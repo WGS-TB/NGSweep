@@ -31,12 +31,6 @@ def mkdir(directory):
 
 """Command line interface"""
 if __name__ == '__main__':
-    # MPI setup
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    size = comm.Get_size()
-
-
     parser = ap.ArgumentParser(prog='preprocessing-pipeline', conflict_handler='resolve',
                                description="Preprocessing pipeline - Eliminate outliers from datasets")
 
@@ -96,6 +90,11 @@ if __name__ == '__main__':
     stdout.setFormatter(formatter)
     logger.addHandler(stdout)
 
+    # MPI setup
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
     # Log file setup
     if args.log:
         logger.info("Log file initiated")
@@ -125,18 +124,19 @@ if __name__ == '__main__':
     """Run pipeline"""
     directory = os.path.abspath(args.input)
 
-    # Create directories
-    if args.outlier:
-        mkdir(os.path.join(args.outdir, 'outliers'))
-        mkdir(os.path.join(args.outdir, 'mash'))
-    if args.trim:
-        mkdir(os.path.join(args.outdir, 'trimmed_fastq'))
-    if args.map:
-        mkdir(os.path.join(args.outdir, 'mapping'))
-        mkdir(os.path.join(args.outdir, 'qualimap'))
-    if args.kraken:
-        mkdir(os.path.join(args.outdir, 'kraken'))
-    mkdir(os.path.join(args.outdir, 'reports'))
+    if rank == 0:
+        # Create directories
+        if args.outlier:
+            mkdir(os.path.join(args.outdir, 'outliers'))
+            mkdir(os.path.join(args.outdir, 'mash'))
+        if args.trim:
+            mkdir(os.path.join(args.outdir, 'trimmed_fastq'))
+        if args.map:
+            mkdir(os.path.join(args.outdir, 'mapping'))
+            mkdir(os.path.join(args.outdir, 'qualimap'))
+        if args.kraken:
+            mkdir(os.path.join(args.outdir, 'kraken'))
+        mkdir(os.path.join(args.outdir, 'reports'))
 
     # Determining goal organism
     organism = preprocess.parseReference(args.verbose, args.reference)
