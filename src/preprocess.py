@@ -300,3 +300,4 @@ def cleanup(verbose, outdir):
             logger.info("Standard output: \n" + out.decode('utf-8') + "\n")
         if err:
             logger.info("Standard error: \n" + err.decode('utf-8') + "\n")
+

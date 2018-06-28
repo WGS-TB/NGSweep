@@ -19,11 +19,14 @@
 import sys
 import os
 import glob
-import subprocess
 import logging
 import argparse as ap
 import preprocess
 
+"""Create directory"""
+def mkdir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 """Command line interface"""
 if __name__ == '__main__':
@@ -70,8 +73,7 @@ if __name__ == '__main__':
     if not args.outdir:
         args.outdir = os.path.join(os.getcwd(), "output")
 
-    if not os.path.exists(args.outdir):
-        os.makedirs(args.outdir)
+    mkdir(args.outdir)
 
     if os.path.exists(args.outdir) and not os.path.isdir(args.outdir):
         print("The output path is not a directory.")
@@ -118,16 +120,16 @@ if __name__ == '__main__':
 
     # Create directories
     if args.outlier:
-        os.makedirs(os.path.join(args.outdir, 'outliers'))
-        os.makedirs(os.path.join(args.outdir, 'mash'))
+        mkdir(os.path.join(args.outdir, 'outliers'))
+        mkdir(os.path.join(args.outdir, 'mash'))
     if args.trim:
-        os.makedirs(os.path.join(args.outdir, 'trimmed_fastq'))
+        mkdir(os.path.join(args.outdir, 'trimmed_fastq'))
     if args.map:
-        os.makedirs(os.path.join(args.outdir, 'mapping'))
-        os.makedirs(os.path.join(args.outdir, 'qualimap'))
+        mkdir(os.path.join(args.outdir, 'mapping'))
+        mkdir(os.path.join(args.outdir, 'qualimap'))
     if args.kraken:
-        os.makedirs(s.path.join(args.outdir, 'kraken'))
-    os.makedirs(os.path.join(args.outdir, 'reports'))
+        mkdir(os.path.join(args.outdir, 'kraken'))
+    mkdir(os.path.join(args.outdir, 'reports'))
 
     # Index reference using smalt
     if args.map:
