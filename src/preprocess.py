@@ -91,8 +91,8 @@ class preprocess():
     """Mapping with BWA"""
     def bwa_map(self):
         self.ifVerbose("Mapping reads to reference using BWA")
-        with open('output/mapping/%s.SAM' % self.name, 'wb') as sam:
-            with open('output/mapping/%s.BAM' % self.name, 'wb') as bam:
+        with open(os.path.join(self.outdir, 'mapping/%s.SAM' % self.name), 'wb') as sam:
+            with open(os.path.join(self.outdir, 'mapping/%s.BAM' % self.name), 'wb') as bam:
                 if self.paired:
                     sam_output = self.runCommand(['bwa', 'mem', 'reference', self.input, self.input2],
                                                  os.path.join(self.outdir, 'mapping'), write_output=True)

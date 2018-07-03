@@ -233,7 +233,7 @@ if __name__ == '__main__':
         preprocess.cleanup(args.verbose, args.outdir)
 
     # Conglomerate all log files
-    log = open("log.txt", 'a')
+    log = open("output/log.txt", 'a')
 
     for index,file in enumerate(glob.glob(os.path.join(args.outdir, "log*.txt"))):
         log.write("PROCESS #%d\n" % index)
