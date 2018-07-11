@@ -1,12 +1,14 @@
 <tool id="normalize_headers" name="Normalize fastq headers" version="0.0.0">
     <command interpreter="python">
-        refseq_parser.py -r $reference -i #for $report in $reports# $report #end for#
+        normalize_header.py -i #for $sample in $dataset# $sample #end for#
     </command>
     <inputs>
-        <param name="dataset" type="data" format="fastq" label="HTML Qualimap reports" help="" optional="false" multiple="True" />
+        <param name="dataset" type="data" format="fastq" label="Dataset" help="" optional="false" multiple="True" />
     </inputs>
     <outputs>
-        <data name="output_file" label="Outliers from dataset" format="fasq"/>
+        <collection type="list" name="normalized" label="Dataset with normalized headers" inherit_format="true">
+            <discover_datasets pattern="(?P&lt;name&gt;.*)" directory="output"/>
+        </collection>
     </outputs>
 
     <help>
