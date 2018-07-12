@@ -10,6 +10,7 @@
 # Trim_galore                                               #
 # Smalt/BWA/Bowtie                                          #
 # Kraken                                                    #
+# ete3                                                      #
 #                                                           #
 # Ensure all dependencies can be called from the command    #
 # line (ex. which)                                          #
@@ -136,6 +137,7 @@ if __name__ == '__main__':
             mkdir(os.path.join(args.outdir, 'qualimap'))
         if args.kraken:
             mkdir(os.path.join(args.outdir, 'kraken'))
+            mkdir(os.path.join(args.outdir, 'kraken_trim'))
         mkdir(os.path.join(args.outdir, 'reports'))
 
     # Determining goal organism
