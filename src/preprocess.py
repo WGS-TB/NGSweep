@@ -94,8 +94,6 @@ class preprocess():
 
     """Trim fastq reads not belonging to target organism"""
     def kraken_trim(self):
-        self.ifVerbose("Trimming reads that do not belong to the target organism")
-
         kraken = self.parse_kraken_results()
 
         # Write new fastq file
@@ -107,6 +105,7 @@ class preprocess():
                     if fastq_out[-3:] == ".gz": # Eliminate .gz from filename
                         fastq_out = fastq_out[:-3]
                     with open(os.path.join(self.outdir, 'kraken_trim/%s' % fastq_out)) as f_out:
+                        self.ifVerbose("Trimming reads from %s that do not belong to the target organism" % fastq_out)
                         for line in f_in:
                             # Split ID with space, then remove "/1" or "/2" if it exists and ignore initial @
                             read_id = line.split(" ")[0].split("/")[0][1:]
