@@ -253,8 +253,10 @@ def check_headers(accession, file_type, input, verbose):
 
     flag = False
 
-    firstLineForward = gzip.open(os.path.join(input, accession+"_1"+file_type), 'r').readline()
-    firstLineBackward = gzip.open(os.path.join(input, accession+"_2"+file_type), 'r').readline()
+    with gzip.open(os.path.join(input, accession+"_1"+file_type), 'r') as forward:
+        firstLineForward = forward.readline()
+    with gzip.open(os.path.join(input, accession+"_2"+file_type), 'r') as reverse:
+        firstLineBackward = reverse.readline()
 
     if firstLineForward == firstLineBackward: # If the headers are the same (unmodified)
         return 0
@@ -366,4 +368,3 @@ def cleanup(verbose, outdir):
             logger.info("Standard output: \n" + out.decode('utf-8') + "\n")
         if err:
             logger.info("Standard error: \n" + err.decode('utf-8') + "\n")
-
