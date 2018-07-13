@@ -52,13 +52,18 @@ class preprocess():
     def run_kraken(self):
         self.ifVerbose("Running Kraken")
 
+        gzip = ""
+        if input[-3:] == ".gz":
+            gzip = "--gzip-compressed"
+
         if self.paired:
             self.runCommand(['kraken', '--db', self.db, '--classified-out', self.name + '.classified', '--paired',
-                             '--output', self.name + '.kraken', self.input, self.input2],
+                             '--output', self.name + '.kraken', '--fastq-input', "%s" % gzip, self.input, self.input2],
                              os.path.join(self.outdir, 'kraken'), write_output=False)
         else:
             self.runCommand(['kraken', '--db', self.db, '--classified-out', self.name + '.classified', '--output',
-                             self.name + '.kraken', self.input], os.path.join(self.outdir, 'kraken'), write_output=False)
+                             self.name + '.kraken', '--fastq-input', "%s" % gzip, self.input],
+                             os.path.join(self.outdir, 'kraken'), write_output=False)
 
     """Parse Kraken resuts"""
     def parse_kraken_results(self):
