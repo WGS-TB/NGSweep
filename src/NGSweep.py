@@ -47,8 +47,8 @@ if __name__ == '__main__':
     kraken.add_argument('--taxon_id', metavar="STRING", help="Defined taxonomic ID (Default: Match taxon of reference)")
 
     input = parser.add_argument_group('Input', '')
-    input.add_argument('-i', '--input', required=True, metavar="STRING", help="Input dataset (location of all FASTQ files)")
-    input.add_argument('-r', '--reference', required=True, metavar="STRING", help="Reference genome in FASTA format")
+    input.add_argument('-i', '--input', metavar="STRING", help="Input dataset (location of all FASTQ files)")
+    input.add_argument('-r', '--reference', metavar="STRING", help="Reference genome in FASTA format")
     input.add_argument('-p', '--paired', action='store_true', help="Paired end reads")
 
     output = parser.add_argument_group('Output', '')
