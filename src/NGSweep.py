@@ -22,6 +22,7 @@ import os
 import glob
 import logging
 import argparse as ap
+import subprocess as sp
 import preprocess
 from mpi4py import MPI
 
@@ -62,6 +63,7 @@ if __name__ == '__main__':
     optional = parser.add_argument_group('Optional', '')
     optional.add_argument('-v', '--verbose', action='store_true', help="Print status updates during run to stdout"
                                                                        "use -l to keep a log file instead")
+    optional.add_argument('--test', action='store_true', help="Test for dependencies")
     optional.add_argument('-h','--help', action='help', help="Show help message")
 
     if len(sys.argv) == 1:
@@ -69,6 +71,26 @@ if __name__ == '__main__':
         sys.exit(1)
 
     args = parser.parse_args()
+
+    # stdout setup
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s")
+
+    stdout = logging.StreamHandler()
+    stdout.setFormatter(formatter)
+    logger.addHandler(stdout)
+
+    if args.test:
+        logger.info("Testing for dependencies")
+        dependencies = ['refseq_masher', 'multiqc', 'samtools', 'trim_galore', 'kraken']
+        for dependency in dependencies:
+            sp.call([dependency, '--version'])
+        sp.call(['smalt','version'])
+        sp.call(['bwa'])
+        sys.exit()
+
     error = 0
 
     # MPI setup
@@ -84,20 +106,10 @@ if __name__ == '__main__':
         mkdir(args.outdir)
 
     if os.path.exists(args.outdir) and not os.path.isdir(args.outdir):
-        print("The output path is not a directory.")
+        logger.error("The output path is not a directory.")
         sys.exit(2)
 
     comm.Barrier()
-
-    # stdout setup
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s")
-
-    stdout = logging.StreamHandler()
-    stdout.setFormatter(formatter)
-    logger.addHandler(stdout)
 
     # Log file setup
     if args.log:
