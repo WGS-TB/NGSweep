@@ -82,7 +82,7 @@ class preprocess():
         # Classify each read
         kraken_class = {}
 
-        for read_id, tax_id in kraken.iteritems():
+        for read_id, tax_id in kraken.items():
             if tax_id == 0:
                 kraken_class[read_id] = "unclassified"
             elif tax_id in descendants:
