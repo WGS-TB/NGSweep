@@ -53,7 +53,7 @@ class preprocess():
         self.ifVerbose("Running Kraken")
 
         gzip = ""
-        if input[-3:] == ".gz":
+        if self.input[-3:] == ".gz":
             gzip = "--gzip-compressed"
 
         if self.paired:
