@@ -57,13 +57,12 @@ class preprocess():
             gzip = "--gzip-compressed"
 
         if self.paired:
-            self.runCommand(['kraken', '--db', self.db, '--classified-out', self.name + '.classified', '--paired',
-                             '--output', self.name + '.kraken', '--fastq-input', "%s" % gzip, self.input, self.input2],
+            self.runCommand(['kraken', '--db', self.db, '--paired', '--output', self.name + '.kraken',
+                             '--fastq-input', "%s" % gzip, self.input, self.input2],
                              os.path.join(self.outdir, 'kraken'), write_output=False)
         else:
-            self.runCommand(['kraken', '--db', self.db, '--classified-out', self.name + '.classified', '--output',
-                             self.name + '.kraken', '--fastq-input', "%s" % gzip, self.input],
-                             os.path.join(self.outdir, 'kraken'), write_output=False)
+            self.runCommand(['kraken', '--db', self.db, '--output', self.name + '.kraken', '--fastq-input',
+                             "%s" % gzip, self.input], os.path.join(self.outdir, 'kraken'), write_output=False)
 
     """Parse Kraken resuts"""
     def parse_kraken_results(self):
@@ -71,7 +70,7 @@ class preprocess():
 
         kraken = {} # Store classification for each read
 
-        with open(os.path.join(self.outdir, 'kraken/%s.classified' % self.name), 'r') as classification:
+        with open(os.path.join(self.outdir, 'kraken/%s.kraken' % self.name), 'r') as classification:
             for line in classification:
                 classified, read_id, tax_id, length, details = line.strip().split("\t")
                 kraken[read_id] = tax_id
