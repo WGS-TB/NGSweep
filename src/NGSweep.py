@@ -220,6 +220,7 @@ if __name__ == '__main__':
 
         if args.kraken:
             pipeline.run_kraken()
+            pipeline.kraken_trim()
 
         if args.map:
             if args.smalt:
