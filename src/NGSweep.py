@@ -87,6 +87,8 @@ if __name__ == '__main__':
         print("The output path is not a directory.")
         sys.exit(2)
 
+    comm.Barrier()
+
     # stdout setup
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
