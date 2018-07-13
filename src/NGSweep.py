@@ -113,7 +113,7 @@ if __name__ == '__main__':
         error += 1
         logger.error("Reference at %s does not exist." % args.reference)
 
-    if not args.outlier and not args.trim and not args.map:
+    if not args.outlier and not args.trim and not args.map and not args.kraken:
         error += 1
         logger.error("Please specify a mode.")
 
