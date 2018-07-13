@@ -71,11 +71,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
     error = 0
 
+    # MPI setup
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
     # If no output directory was specified, create an output directory
     if not args.outdir:
         args.outdir = os.path.join(os.getcwd(), "output")
 
-    mkdir(args.outdir)
+    if rank == 0:
+        mkdir(args.outdir)
 
     if os.path.exists(args.outdir) and not os.path.isdir(args.outdir):
         print("The output path is not a directory.")
@@ -90,11 +96,6 @@ if __name__ == '__main__':
     stdout = logging.StreamHandler()
     stdout.setFormatter(formatter)
     logger.addHandler(stdout)
-
-    # MPI setup
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    size = comm.Get_size()
 
     # Log file setup
     if args.log:
