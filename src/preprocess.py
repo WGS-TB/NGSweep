@@ -97,28 +97,27 @@ class preprocess():
         kraken = self.parse_kraken_results()
 
         # Write new fastq file
-        if self.paired:
-            files = glob.glob(os.path.join(self.input, self.name + "*"))
-            for fastq_in in files:
-                with gzip.open(fastq_in) as f_in:
-                    fastq_out = os.path.split(file)[1]
-                    if fastq_out[-3:] == ".gz": # Eliminate .gz from filename
-                        fastq_out = fastq_out[:-3]
-                    with open(os.path.join(self.outdir, 'kraken_trim/%s' % fastq_out)) as f_out:
-                        self.ifVerbose("Trimming reads from %s that do not belong to the target organism" % fastq_out)
-                        for line in f_in:
-                            # Split ID with space, then remove "/1" or "/2" if it exists and ignore initial @
-                            read_id = line.split(" ")[0].split("/")[0][1:]
-                            if read_id in kraken and kraken[read_id] != "other":
-                                f_out.write(line)
-                                for i in range(3):
-                                    f_out.write(f_in.readline())
-                            else:
-                                for i in range(3):
-                                    f_in.readline()
+        files = glob.glob(os.path.join(self.input, self.name + "*"))
+        for fastq_in in files:
+            with gzip.open(fastq_in) as f_in:
+                fastq_out = os.path.split(fastq_in)[1]
+                if fastq_out[-3:] == ".gz": # Eliminate .gz from filename
+                    fastq_out = fastq_out[:-3]
+                with open(os.path.join(self.outdir, 'kraken_trim/%s' % fastq_out)) as f_out:
+                    self.ifVerbose("Trimming reads from %s that do not belong to the target organism" % fastq_out)
+                    for line in f_in:
+                        # Split ID with space, then remove "/1" or "/2" if it exists and ignore initial @
+                        read_id = line.split(" ")[0].split("/")[0][1:]
+                        if read_id in kraken and kraken[read_id] != "other":
+                            f_out.write(line)
+                            for i in range(3):
+                                f_out.write(f_in.readline())
+                        else:
+                            for i in range(3):
+                                f_in.readline()
 
-                # Zip output files
-                self.runCommand(['gzip', os.path.join(self.outdir, 'kraken_trim/%s' % fastq_out)], None, write_output=False)
+            # Zip output files
+            self.runCommand(['gzip', os.path.join(self.outdir, 'kraken_trim/%s' % fastq_out)], None, write_output=False)
 
 
     """Run Trim_galore to preprocess fastq files"""
