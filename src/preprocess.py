@@ -195,7 +195,7 @@ class preprocess():
                         taxonomy_split = row['top_taxonomy_name'].split()
                         taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
 
-                        if taxonomy.lower() != self.organism.lower() or float(row['distance']) > 1e-3:
+                        if taxonomy.lower() != self.organism.lower() or float(row['distance']) > 0.05:
                             outlier_flag = True
                             break
 
