@@ -1,7 +1,7 @@
-<tool id="normalize_headers" name="Normalize fastq headers" version="0.0.0">
-    <command interpreter="python">
-        normalize_header.py -i #for $sample in $dataset# $sample #end for#
-    </command>
+<tool id="normalize_headers" name="Normalize fastq headers" version="0.1.0">
+    <command><![CDATA[
+        $__tool_directory__/normalize_header -i #for $sample in $dataset# $sample #end for#
+    ]]></command>
     <inputs>
         <param name="dataset" type="data" format="fastq" label="Dataset" help="" optional="false" multiple="True" />
     </inputs>
@@ -11,7 +11,26 @@
         </collection>
     </outputs>
 
-    <help>
+    <tests>
+        <test>
+            <param name="reference" value="reference.fna.gz" ftype="fasta" />
+            <param name="report" value="test.tsv" ftype="tabular" />
+            <output name="output" value="output.tsv" ftype="tabular" />
+        </test>
+    </tests>
 
-    </help>
+    <help><![CDATA[
+        Checks the headers of paired fastq files to ensure they are not modified.
+        If they are modified, normalize them by changing them to the standard format.
+
+        Modified fastq files can be obtained when downloading using the sra-toolkit without the -origfmt flag.
+        These files may not be recognized by various mappers (such as BWA).
+
+        Command line:
+        normalize_header -i <fastq dataset>
+    ]]></help>
+
+    <citations>
+        Manuscript in preparation
+    </citations>
 </tool>
