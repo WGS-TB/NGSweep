@@ -7,7 +7,7 @@
         <param name="reports" type="data" format="txt" label="Qualimap Genome Report" help="" optional="false" multiple="True" />
     </inputs>
     <outputs>
-        <data name="output_file" label="Outliers from dataset after mapping" format="tabular" from_work_dir="outlier_list.tsv"/>
+        <data name="output_file" label="Outliers from dataset after mapping" format="txt" from_work_dir="outlier_list.txt"/>
     </outputs>
 
     <tests>

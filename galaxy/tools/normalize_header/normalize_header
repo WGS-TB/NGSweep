@@ -38,8 +38,8 @@ def check_headers(accession, file_type, input):
                 mate.write(str.encode(new_file))
 
 
-parser = ap.ArgumentParser(prog='outlier-parser', conflict_handler='resolve',
-                           description="Parses output file to eliminate outliers")
+parser = ap.ArgumentParser(prog='normalize_header', conflict_handler='resolve',
+                           description="Normalizes ")
 
 input = parser.add_argument_group('Input', '')
 input.add_argument('-i', '--input', nargs='+', required=True, help="Tab-delimited RefSeq Masher reports")

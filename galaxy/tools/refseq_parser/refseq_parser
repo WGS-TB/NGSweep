@@ -28,7 +28,7 @@ except:
     meta = open(args.reference, 'rb').readline().split()
 organism = "%s %s" % (meta[1].decode('utf-8'), meta[2].decode('utf-8'))
 
-output = open("outlier_list.tsv", "w")
+output = open("outlier_list.txt", "w")
 outlier_flag = False
 accession = ""
 

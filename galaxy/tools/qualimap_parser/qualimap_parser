@@ -22,7 +22,7 @@ if len(sys.argv) == 1:
     sys.exit(1)
 
 args = parser.parse_args()
-output = open("outlier_list.tsv", "a")
+output = open("outlier_list.txt", "a")
 
 """For parsing report file"""
 for index,report in enumerate(args.input):
