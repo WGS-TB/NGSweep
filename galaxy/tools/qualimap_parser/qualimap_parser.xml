@@ -1,13 +1,14 @@
 <tool id="parse_qualimap" name="Parse Qualimap reports" version="0.0.0">
     <description>and output a list of outliers</description>
-    <command interpreter="python">
-        refseq_parser.py -r $reference -i #for $report in $reports# $report #end for#
-    </command>
+    <command><![CDATA[
+        $__tool_directory__/qualimap_parser -n #for $report in $reports# ${report.name}
+        -i #for $report in $reports# $report #end for#
+    ]]></command>
     <inputs>
-        <param name="reports" type="data" format="html" label="HTML Qualimap reports" help="" optional="false" multiple="True" />
+        <param name="reports" type="data" format="txt" label="Qualimap Genome Report" help="" optional="false" multiple="True" />
     </inputs>
     <outputs>
-        <data name="output_file" label="Outliers from dataset" format="tabular" from_work_dir="outlier_list.tsv"/>
+        <data name="output_file" label="Outliers from dataset after mapping" format="tabular" from_work_dir="outlier_list.tsv"/>
     </outputs>
 
     <tests>
