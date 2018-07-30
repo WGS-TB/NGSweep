@@ -8,7 +8,7 @@
         <param name="reference" type="data" format="fasta" label="FASTA reference genome" help="" optional="false" />
     </inputs>
     <outputs>
-        <data name="output_file" label="Outliers from dataset" format="tabular"/>
+        <data name="output_file" label="Outliers from dataset" format="tabular" from_work_dir="outlier_list.tsv"/>
     </outputs>
 
     <tests>
