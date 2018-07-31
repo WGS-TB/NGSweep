@@ -29,6 +29,7 @@ class preprocess():
         self.db = db
         self.taxon_id = taxon_id
         self.logger = logging.getLogger()
+        self.outlier_file = open(outdir+'/outlier_list.txt', 'a')
 
     """Shell Execution"""
     def runCommand(self, command, directory, write_output):
@@ -214,14 +215,15 @@ class preprocess():
 
             if outlier_flag:
                 self.ifVerbose("%s is an outlier" % self.name)
-                self.move_outlier()
+                self.outlier()
 
     """Move outlier sample"""
-    def move_outlier(self):
-        self.ifVerbose("Moving %s to outlier folder" % self.name)
-        self.runCommand(['cp', self.input, os.path.join(self.outdir, 'outliers')], directory=None, write_output=False)
-        if self.paired:
-            self.runCommand(['cp', self.input2, os.path.join(self.outdir, 'outliers')], directory=None, write_output=False)
+    def outlier(self):
+        self.ifVerbose("%s is an outlier" % self.name)
+        # self.runCommand(['cp', self.input, os.path.join(self.outdir, 'outliers')], directory=None, write_output=False)
+        # if self.paired:
+        #     self.runCommand(['cp', self.input2, os.path.join(self.outdir, 'outliers')], directory=None, write_output=False)
+        self.outlier_file.write("%s\n" % self.name)
 
     def ifVerbose(self, msg):
         if self.verbose:

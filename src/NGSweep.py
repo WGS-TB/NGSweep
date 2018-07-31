@@ -143,7 +143,7 @@ if __name__ == '__main__':
     if rank == 0:
         # Create directories
         if args.outlier:
-            mkdir(os.path.join(args.outdir, 'outliers'))
+            # mkdir(os.path.join(args.outdir, 'outliers'))
             mkdir(os.path.join(args.outdir, 'mash'))
         if args.trim:
             mkdir(os.path.join(args.outdir, 'trimmed_fastq'))
