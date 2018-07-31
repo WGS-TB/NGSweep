@@ -1,7 +1,8 @@
-<tool id="parse_qualimap" name="Parse Qualimap reports" version="0.0.0">
+<tool id="parse_qualimap" name="Parse Qualimap reports" version="0.1.0">
     <description>and output a list of outliers</description>
     <command><![CDATA[
-        $__tool_directory__/qualimap_parser -n #for $report in $reports# ${report.name} #end for# -i #for $report in $reports# $report #end for#
+        $__tool_directory__/qualimap_parser -n #for $report in $reports# ${report.element_identifier} #end for#
+        -i #for $report in $reports# $report #end for#
     ]]></command>
     <inputs>
         <param name="reports" type="data" format="txt" label="Qualimap Genome Report" help="" optional="false" multiple="True" />
