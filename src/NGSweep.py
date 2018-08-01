@@ -26,6 +26,8 @@ import subprocess as sp
 import preprocess
 from mpi4py import MPI
 
+VERSION = 0.1
+
 """Create directory"""
 def mkdir(directory):
     if not os.path.exists(directory):
@@ -34,7 +36,10 @@ def mkdir(directory):
 """Command line interface"""
 if __name__ == '__main__':
     parser = ap.ArgumentParser(prog='preprocessing-pipeline', conflict_handler='resolve',
-                               description="Preprocessing pipeline - Eliminate outliers from datasets")
+                               description="NGSweep (Next-Generation Sequencing Data Preprocessing Pipeline\n"
+                                           "Version %f\n"
+                                           "Contact: Matthew Nguyen <mtn14@sfu.ca>" % VERSION,
+                               formatter_class=ap.RawTextHelpFormatter)
 
     modes = parser.add_argument_group('Modes', '')
     modes.add_argument('--outlier', action='store_true', help="Check for outliers")
