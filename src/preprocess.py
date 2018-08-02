@@ -86,7 +86,7 @@ class preprocess():
         for read_id, tax_id in kraken.items():
             if tax_id == 0:
                 kraken_class[read_id] = "unclassified"
-            elif tax_id in descendants or tax_id == self.taxon_id:
+            elif int(tax_id) in descendants or int(tax_id) == self.taxon_id:
                 kraken_class[read_id] = "target"
             else:
                 kraken_class[read_id] = "other"
