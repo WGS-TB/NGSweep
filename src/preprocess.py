@@ -110,9 +110,9 @@ class preprocess():
                         # Split ID with space, then remove "/1" or "/2" if it exists and ignore initial @
                         read_id = line.decode('utf-8').split(" ")[0].split("/")[0][1:]
                         if read_id in kraken and kraken[read_id] != "other":
-                            f_out.write(line)
+                            f_out.write(line.decode('utf-8'))
                             for i in range(3):
-                                f_out.write(f_in.readline())
+                                f_out.write(f_in.readline().decode('utf-8'))
                         else:
                             for i in range(3):
                                 f_in.readline()
