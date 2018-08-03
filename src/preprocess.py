@@ -30,6 +30,8 @@ class preprocess():
         self.taxon_id = taxon_id
         self.logger = logging.getLogger()
         self.outlier_file = open(outdir+'/outlier_list.txt', 'a')
+        ncbi = NCBITaxa()
+        self.descendants = ncbi.get_descendant_taxa(self.taxon_id) # NCBI Taxon ID of all descendants
 
     """Shell Execution"""
     def runCommand(self, command, directory, write_output):
@@ -76,17 +78,13 @@ class preprocess():
                 classified, read_id, tax_id, length, details = line.strip().split("\t")
                 kraken[read_id] = tax_id
 
-        # Obtain taxonomic ID for descendants of target organism
-        ncbi = NCBITaxa()
-        descendants = ncbi.get_descendant_taxa(self.taxon_id)
-
         # Classify each read
         kraken_class = {}
 
         for read_id, tax_id in kraken.items():
             if tax_id == 0:
                 kraken_class[read_id] = "unclassified"
-            elif int(tax_id) in descendants or int(tax_id) == self.taxon_id:
+            elif int(tax_id) in self.descendants or int(tax_id) == self.taxon_id:
                 kraken_class[read_id] = "target"
             else:
                 kraken_class[read_id] = "other"
@@ -193,10 +191,11 @@ class preprocess():
                 self.ifVerbose("Parsing Refseq_masher report")
                 with open(os.path.join(os.path.join(self.outdir, 'mash'), self.name + '.match')) as csvfile:
                     for row in csv.DictReader(csvfile, delimiter='\t'):
-                        taxonomy_split = row['top_taxonomy_name'].split()
-                        taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
+                        # taxonomy_split = row['top_taxonomy_name'].split()
+                        # taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
 
-                        if taxonomy.lower() != self.organism.lower() or float(row['distance']) > 0.05:
+                        # if taxonomy.lower() != self.organism.lower() or float(row['distance']) > 0.05:
+                        if int(row['taxid']) not in self.descendants or float(row['distance']) > 0.05:
                             outlier_flag = True
                             break
 
