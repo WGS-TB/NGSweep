@@ -1,11 +1,15 @@
 <tool id="parse_refseq_masher" name="Parse refseq_masher output" version="0.1.0">
     <description>and output a list of outliers</description>
+    <requirements>
+        <requirement type="package" version="3.1.1">ete3</requirement>
+    </requirements>
     <command><![CDATA[
-        $__tool_directory__/refseq_parser -r $reference -i #for $report in $reports# $report #end for#
+        $__tool_directory__/refseq_parser -i #for $report in $reports# $report #end for# --taxid $taxid
     ]]></command>
     <inputs>
         <param name="reports" type="data" format="tabular" label="Refseq_masher report" help="" optional="false" multiple="True" />
-        <param name="reference" type="data" format="fasta" label="FASTA reference genome" help="" optional="false" />
+        <!--<param name="reference" type="data" format="fasta" label="FASTA reference genome" help="" optional="false" />-->
+        <param name="taxid" type="integer" label="Taxonomic ID of target taxonomic rank" optional="false"/>
     </inputs>
     <outputs>
         <data name="output_file" label="Outliers from dataset" format="txt" from_work_dir="outlier_list.txt"/>
@@ -13,7 +17,7 @@
 
     <tests>
         <test>
-            <param name="reference" value="reference.fna.gz" ftype="fasta" />
+            <!--<param name="reference" value="reference.fna.gz" ftype="fasta" />-->
             <param name="report" value="test.tsv" ftype="tabular" />
             <output name="output" value="output.tsv" ftype="tabular" />
         </test>
@@ -22,11 +26,11 @@
     <help><![CDATA[
         Parses refseq_masher output and returns a list of outliers based on two criteria:
 
-        1. If the mash match is not the same organism as the reference genome
+        1. If the mash match is not the same or a descendant of the target taxonomic ID
         2. If the distance between the match and the sample is >0.05
 
         Command line:
-        refseq_parser -r <reference FASTA> -i <mash_output.tsv>
+        refseq_parser -i <mash_output.tsv> --taxid <taxonomic_id>
     ]]></help>
 
     <citations>
