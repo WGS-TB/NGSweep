@@ -31,7 +31,7 @@ class preprocess():
         self.logger = logging.getLogger()
         self.outlier_file = open(outdir+'/outlier_list.txt', 'a')
         ncbi = NCBITaxa()
-        self.descendants = ncbi.get_descendant_taxa(self.taxon_id) # NCBI Taxon ID of all descendants
+        self.descendants = ncbi.get_descendant_taxa(self.taxon_id, intermediate_nodes=True) # NCBI Taxon ID of all descendants
 
     """Shell Execution"""
     def runCommand(self, command, directory, write_output):

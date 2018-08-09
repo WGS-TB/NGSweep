@@ -35,7 +35,7 @@ outlier_flag = False
 accession = ""
 
 ncbi = NCBITaxa()
-descendants = ncbi.get_descendant_taxa(args.taxid)
+descendants = ncbi.get_descendant_taxa(args.taxid, intermediate_nodes=True)
 
 for report in args.input: 
     with open(report) as csvfile:
