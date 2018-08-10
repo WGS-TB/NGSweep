@@ -27,11 +27,11 @@ class preprocess():
         self.trim = trim
         self.kraken = kraken
         self.db = db
-        self.taxon_id = taxon_id
+        self.taxid = taxon_id
         self.logger = logging.getLogger()
         self.outlier_file = open(outdir+'/outlier_list.txt', 'a')
-        ncbi = NCBITaxa()
-        self.descendants = ncbi.get_descendant_taxa(self.taxon_id, intermediate_nodes=True) # NCBI Taxon ID of all descendants
+        self.ncbi = NCBITaxa()
+        self.descendants = self.ncbi.get_descendant_taxa(self.taxid, intermediate_nodes=True)
 
     """Shell Execution"""
     def runCommand(self, command, directory, write_output):
@@ -84,7 +84,7 @@ class preprocess():
         for read_id, tax_id in kraken.items():
             if tax_id == 0:
                 kraken_class[read_id] = "unclassified"
-            elif int(tax_id) in self.descendants or int(tax_id) == self.taxon_id:
+            elif int(tax_id) in self.descendants or int(tax_id) == self.taxid:
                 kraken_class[read_id] = "target"
             else:
                 kraken_class[read_id] = "other"
@@ -186,17 +186,22 @@ class preprocess():
     def parser(self, refseq, qualimap):
         if self.outlier:
             outlier_flag = False
+            class_flag = False
+            distance_flag = False
+            map_flag = False
+            quality_flag = False
 
             if refseq:
                 self.ifVerbose("Parsing Refseq_masher report")
                 with open(os.path.join(os.path.join(self.outdir, 'mash'), self.name + '.match')) as csvfile:
                     for row in csv.DictReader(csvfile, delimiter='\t'):
-                        # taxonomy_split = row['top_taxonomy_name'].split()
-                        # taxonomy = "%s %s" % (taxonomy_split[0], taxonomy_split[1])
-
-                        # if taxonomy.lower() != self.organism.lower() or float(row['distance']) > 0.05:
-                        if int(row['taxid']) not in self.descendants or float(row['distance']) > 0.05:
+                        if (int(row['taxid']) not in self.descendants and int(row['taxid'] != int(self.taxid))):
                             outlier_flag = True
+                            class_flag = int(row['taxid'])
+                            break
+                        elif float(row['distance']) > 0.05:
+                            outlier_flag = True
+                            distance_flag = True
                             break
 
             if qualimap:
@@ -209,12 +214,24 @@ class preprocess():
                     if "mean mapping quality" in line:
                         mean_mapping_quality = line.split()[-1]
 
-                if float(mapped_percentage) < 90 or float(mean_mapping_quality) < 10:
+                if float(mapped_percentage) < 90:
                     outlier_flag = True
+                    map_flag = True
+                elif float(mean_mapping_quality) < 10:
+                    outlier_flag = True
+                    quality_flag = True
 
             if outlier_flag:
                 self.ifVerbose("%s is an outlier" % self.name)
-                self.outlier()
+                if class_flag:
+                    self.outlier_file.write("%s\tClassified as %s\n"
+                                            % (self.name, self.ncbi.translate_to_names([class_flag])[0]))
+                if distance_flag:
+                    self.outlier_file.write("%s\tDistance is greater than 0.05\n" % self.name)
+                if map_flag:
+                    self.outlier_file.write("%s\tMapping percentage is lower than 90%%\n" % self.name)
+                if quality_flag:
+                    self.outlier_file.write("%s\tMean mapping quality is lower than 10\n" % self.name)
 
     """Move outlier sample"""
     def outlier(self):
