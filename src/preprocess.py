@@ -224,8 +224,8 @@ class preprocess():
             if outlier_flag:
                 self.ifVerbose("%s is an outlier" % self.name)
                 if class_flag:
-                    self.outlier_file.write("%s\tClassified as %s\n"
-                                            % (self.name, self.ncbi.translate_to_names([class_flag])[0]))
+                    self.outlier_file.write("%s\tClassified as %s (%d)\n"
+                                            % (self.name, self.ncbi.translate_to_names([class_flag])[0], class_flag))
                 if distance_flag:
                     self.outlier_file.write("%s\tDistance is greater than 0.05\n" % self.name)
                 if map_flag:
