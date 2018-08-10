@@ -26,7 +26,7 @@ import subprocess as sp
 import preprocess
 from mpi4py import MPI
 
-VERSION = 0.1
+VERSION = "0.1"
 
 """Create directory"""
 def mkdir(directory):
@@ -35,41 +35,52 @@ def mkdir(directory):
 
 """Command line interface"""
 if __name__ == '__main__':
-    parser = ap.ArgumentParser(prog='preprocessing-pipeline', conflict_handler='resolve',
-                               description="NGSweep (Next-Generation Sequencing Data Preprocessing Pipeline\n"
-                                           "Version %f\n"
+    parser = ap.ArgumentParser(prog='ngsweep', conflict_handler='resolve',
+                               usage='%(prog)s [OPTIONS] {outlier,trim,kraken,qa}',
+                               description="NGSweep: Next-Generation Sequencing Data Preprocessing Pipeline\n"
+                                           "Version %s\n"
                                            "Contact: Matthew Nguyen <mtn14@sfu.ca>" % VERSION,
                                formatter_class=ap.RawTextHelpFormatter)
 
-    modes = parser.add_argument_group('Modes', '')
-    modes.add_argument('--outlier', action='store_true', help="Check for outliers")
-    modes.add_argument('--trim', action='store_true', help="Trim FASTQ files")
-    modes.add_argument('--map', action='store_true', help="Map FASTQ files to reference and verify with Qualimap")
-    modes.add_argument('--kraken', action='store_true', help="Run Kraken and trim contaminated reads")
+    parent_parser = ap.ArgumentParser(add_help=False)
+    parent_parser.add_argument('inputdir', help='Input dataset (location of all FASTQ files)')
+    parent_parser.add_argument('-p', '--paired', action='store_true', help="Paired end reads")
 
-    kraken = parser.add_argument_group('Kraken Parameters', '')
-    kraken.add_argument('--db', metavar="STRING", help="Location of Kraken Database")
-    kraken.add_argument('--taxon_id', metavar="STRING", help="Defined taxonomic ID (Default: Match taxon of reference)")
+    parent_parser.add_argument('-o', '--outdir', metavar="DIR",
+                               help="Output directory containing all reports and outliers")
+    parent_parser.add_argument('-l', '--log', action='store_true', help="Output a log file")
+    parent_parser.add_argument('-kf', '--keepfiles', action='store_true', help="Keep intermediate files")
+    parent_parser.add_argument('-v', '--verbose', action='store_true', help="Print status updates to stdout")
 
-    input = parser.add_argument_group('Input', '')
-    input.add_argument('-i', '--input', metavar="STRING", help="Input dataset (location of all FASTQ files)")
-    input.add_argument('-r', '--reference', metavar="STRING", help="Reference genome in FASTA format")
-    input.add_argument('-p', '--paired', action='store_true', help="Paired end reads")
+    subparser = parser.add_subparsers(help="commands")
 
-    output = parser.add_argument_group('Output', '')
-    output.add_argument('-o', '--outdir', metavar="STRING", help="Output directory containing all reports and outliers")
-    output.add_argument('-l', '--log', action='store_true', help="Output a log file")
-    output.add_argument('--keepfiles', action='store_true', help="Keep intermediate files")
+    outlier_parser = subparser.add_parser('outlier', parents=[parent_parser],
+                                          usage='ngsweep outlier [OPTIONS] <inputdir> <taxid>',
+                                          help='Find outliers in an NGS dataset')
+    outlier_parser.add_argument('taxid', type=int, help="Target taxonomic ID")
 
-    aligners = parser.add_argument_group('Aligner', '')
-    aligners.add_argument('--bwa', action='store_true', help="Run BWA aligner [Default]")
-    aligners.add_argument('--smalt', action='store_true', help="Run Smalt aligner")
+    trim_parser = subparser.add_parser('trim', parents=[parent_parser],
+                                       usage='ngsweep trim [OPTIONS]',
+                                       help="Trim adapters and low quality bases from FASTQ sequences")
 
-    optional = parser.add_argument_group('Optional', '')
-    optional.add_argument('-v', '--verbose', action='store_true', help="Print status updates during run to stdout"
-                                                                       "use -l to keep a log file instead")
-    optional.add_argument('--test', action='store_true', help="Test for dependencies")
-    optional.add_argument('-h','--help', action='help', help="Show help message")
+    kraken_parser = subparser.add_parser('kraken', parents=[parent_parser],
+                                         usage='ngsweep kraken [OPTIONS] <inputdir> <db> <taxid>',
+                                         help="Trim contaminated reads from FASTQ sequences")
+    kraken_parser.add_argument('db', help="Location of Kraken Database")
+    kraken_parser.add_argument('taxid', type=int,
+                               help="Target taxonomic ID")
+
+    qa_parser = subparser.add_parser('qa', parents=[parent_parser],
+                                     usage='ngsweep qa [OPTIONS] <inputdir>', help="Perform QA on FASTQ samples")
+
+    # input.add_argument('-r', '--reference', metavar="STRING", help="Reference genome in FASTA format")
+    #
+    # aligners = parser.add_argument_group('Aligner', '')
+    # aligners.add_argument('--bwa', action='store_true', help="Run BWA aligner [Default]")
+    # aligners.add_argument('--smalt', action='store_true', help="Run Smalt aligner")
+
+    parser.add_argument('--test', action='store_true', help="Test for dependencies")
+    parser.add_argument('-h','--help', action='help', help="Show help message")
 
     if len(sys.argv) == 1:
         parser.print_usage()
