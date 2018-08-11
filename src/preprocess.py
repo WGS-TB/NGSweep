@@ -195,7 +195,7 @@ class preprocess():
                 self.ifVerbose("Parsing Refseq_masher report")
                 with open(os.path.join(os.path.join(self.outdir, 'mash'), self.name + '.match')) as csvfile:
                     for row in csv.DictReader(csvfile, delimiter='\t'):
-                        if (int(row['taxid']) not in self.descendants and int(row['taxid'] != int(self.taxid))):
+                        if (int(row['taxid'] != int(self.taxid)) and int(row['taxid']) not in self.descendants):
                             outlier_flag = True
                             class_flag = int(row['taxid'])
                             break

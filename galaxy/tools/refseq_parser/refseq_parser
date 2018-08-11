@@ -46,6 +46,6 @@ for report in args.input:
                 continue
             accession = row['sample']
 
-            if (int(row['taxid']) not in descendants and int(row['taxid']) != int(args.taxid)) or float(row['distance']) > 0.05:
+            if (int(row['taxid']) != int(args.taxid) and int(row['taxid']) not in descendants) or float(row['distance']) > 0.05:
                 output.write("%s\n" % accession)
                 outlier_flag = True
