@@ -60,6 +60,7 @@ if __name__ == '__main__':
     output.add_argument('-o', '--outdir', metavar="STRING", help="Output directory containing all reports and outliers")
     output.add_argument('-l', '--log', action='store_true', help="Output a log file")
     output.add_argument('--keepfiles', action='store_true', help="Keep intermediate files")
+    output.add_argument('-n', '--n_results', default=1, help="Search top n results of refseq_masher")
 
     aligners = parser.add_argument_group('Aligner', '')
     aligners.add_argument('--bwa', action='store_true', help="Run BWA aligner [Default]")
@@ -217,12 +218,12 @@ if __name__ == '__main__':
             pipeline = preprocess.preprocess(organism, os.path.join(directory, accession+'_1'+file_type), accession, args.outdir,
                                   args.reference, args.paired, os.path.join(directory, accession+'_2'+file_type),
                                   args.log, args.verbose, args.map, args.outlier, args.trim, args.kraken, args.db,
-                                  args.taxon_id)
+                                  args.taxon_id, args.n_results)
 
         else:
             pipeline = preprocess.preprocess(organism, os.path.join(directory, filename), accession, args.outdir,
                                   args.reference, args.paired, None, args.log, args.verbose, args.map, args.outlier,
-                                  args.trim, args.kraken, args.db, args.taxon_id)
+                                  args.trim, args.kraken, args.db, args.taxon_id, args.n_results)
 
         if args.outlier:
             pipeline.refseq_masher()
