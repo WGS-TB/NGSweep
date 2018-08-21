@@ -80,14 +80,16 @@ class preprocess():
 
         # Classify each read
         kraken_class = {}
-
-        for read_id, tax_id in kraken.items():
-            if tax_id == 0:
-                kraken_class[read_id] = "unclassified"
-            elif int(tax_id) in self.descendants or int(tax_id) == self.taxid:
-                kraken_class[read_id] = "target"
-            else:
-                kraken_class[read_id] = "other"
+        
+        with open(os.path.join(self.outdir, 'kraken/%s.log' % self.name), 'w') as log:
+            for read_id, tax_id in kraken.items():
+                if int(tax_id) == 0:
+                    kraken_class[read_id] = "unclassified"
+                elif int(tax_id) in self.descendants or int(tax_id) == int(self.taxid):
+                    kraken_class[read_id] = "target"
+                else:
+                    kraken_class[read_id] = "other"
+                    log.write("%s was trimmed because it was classified as %s (%s)\n" % (read_id, self.ncbi.translate_to_names([int(tax_id)])[0], tax_id))
 
         return kraken_class
 
