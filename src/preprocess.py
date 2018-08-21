@@ -12,7 +12,7 @@ from ete3 import NCBITaxa
 class preprocess():
 
     def __init__(self, organism, input, name, outdir, reference, paired, input2, log, verbose, map, outlier, trim,
-                 kraken, db, taxon_id):
+                 kraken, db, taxon_id, n_results):
         self.organism = organism
         self.input = input
         self.name = name
@@ -28,6 +28,7 @@ class preprocess():
         self.kraken = kraken
         self.db = db
         self.taxid = taxon_id
+        self.n_results = n_results
         self.logger = logging.getLogger()
         self.outlier_file = open(outdir+'/outlier_list.txt', 'a')
         self.ncbi = NCBITaxa()
@@ -48,7 +49,8 @@ class preprocess():
     """Running Refseq_masher"""
     def refseq_masher(self):
         self.ifVerbose("Running Refseq_masher matching")
-        self.runCommand(['refseq_masher', 'matches', '-o', self.name+'.match', '--output-type', 'tab', self.input],
+        self.runCommand(['refseq_masher', 'matches', '-o', self.name+'.match', '--output-type', 'tab', self.input,
+                         '-n', self.n_results+5],
                         os.path.join(self.outdir, 'mash'), write_output=False)
 
     """Running Kraken"""
@@ -192,6 +194,7 @@ class preprocess():
             distance_flag = False
             map_flag = False
             quality_flag = False
+            n_count = 0
 
             if refseq:
                 self.ifVerbose("Parsing Refseq_masher report")
@@ -200,7 +203,10 @@ class preprocess():
                         if (int(row['taxid']) != int(self.taxid) and int(row['taxid']) not in self.descendants):
                             outlier_flag = True
                             class_flag = int(row['taxid'])
-                            break
+                            if n_count >= self.n_results:
+                                break
+                            else:
+                                n_count += 1
                         elif float(row['distance']) > 0.05:
                             outlier_flag = True
                             distance_flag = True

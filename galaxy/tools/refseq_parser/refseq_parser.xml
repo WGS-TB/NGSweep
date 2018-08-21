@@ -9,7 +9,7 @@
     <inputs>
         <param name="reports" type="data" format="tabular" label="Refseq_masher report" help="" optional="false" multiple="True" />
         <!--<param name="reference" type="data" format="fasta" label="FASTA reference genome" help="" optional="false" />-->
-        <param name="taxid" type="integer" label="Taxonomic ID of target taxonomic rank" optional="false"/>
+        <param name="taxid" type="integer" value="0" label="Taxonomic ID of target taxonomic rank" optional="false"/>
     </inputs>
     <outputs>
         <data name="output_file" label="Outliers from dataset" format="txt" from_work_dir="outlier_list.txt"/>
