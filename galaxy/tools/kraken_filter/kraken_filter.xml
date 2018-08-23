@@ -10,6 +10,7 @@
             "--p"
         #end if
 
+        "${db}"
         "${fastq_input.fastq1.element_identifier}"
         "${reports}"
         "${taxid}"
@@ -44,7 +45,8 @@
                        format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta" label="Select paired collection"/>
             </when>
         </conditional>
-        <param name="reports" type="data" format="tabular" label="Refseq_masher report" help="" optional="false"/>
+        <param name="db" type="data" format="sqlite" label="(ETE3) Taxonomy Database"/>
+        <param name="reports" type="data" format="tabular" label="Kraken report" help="" optional="false"/>
         <param name="taxid" type="integer" value="0" label="Taxonomic ID of target taxonomic rank" optional="false"/>
     </inputs>
     <outputs>

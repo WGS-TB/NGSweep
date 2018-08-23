@@ -15,9 +15,9 @@ def openfile(file, mode='r'):
     return infile
 
 
-def parse_kraken_results(report, taxid):
+def parse_kraken_results(db, report, taxid):
     kraken = {}  # Store classification for each read
-    ncbi = NCBITaxa()
+    ncbi = NCBITaxa(db)
     descendants = set(ncbi.get_descendant_taxa(taxid))
 
     with open(report, 'r') as classification:
@@ -39,8 +39,8 @@ def parse_kraken_results(report, taxid):
     return kraken_class
 
 
-def kraken_trim(report, taxid, paired, fastq, fastq2, accession):
-    kraken = parse_kraken_results(report, taxid)
+def kraken_trim(db, report, taxid, paired, fastq, fastq2, accession):
+    kraken = parse_kraken_results(db, report, taxid)
 
     # Write new fastq file
     if paired:
@@ -72,6 +72,7 @@ parser = ap.ArgumentParser(prog='kraken_trim', conflict_handler='resolve',
                            description="Trims contaminated reads using Kraken reports")
 
 input = parser.add_argument_group('Input', '')
+input.add_argument('db', help="sqlite formatted ETE3 taxa database")
 input.add_argument('accession', help="Sample accession")
 input.add_argument('report', help="Kraken report")
 input.add_argument('taxid', type=int, help="Target taxonomic ID")
@@ -88,4 +89,4 @@ args = parser.parse_args()
 if not os.path.exists('kraken_filtered'):
     os.makedirs('kraken_filtered')
 
-kraken_trim(args.report, args.taxid, args.paired, args.fastq, args.fastq2, args.accession)
+kraken_trim(args.db, args.report, args.taxid, args.p, args.fastq, args.fastq2, args.accession)

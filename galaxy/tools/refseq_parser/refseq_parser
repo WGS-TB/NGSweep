@@ -14,7 +14,8 @@ parser = ap.ArgumentParser(prog='outlier-parser', conflict_handler='resolve',
 
 input = parser.add_argument_group('Input', '')
 input.add_argument('-i', '--input', nargs='+', required=True, help="Tab-delimited RefSeq Masher reports")
-input.add_argument('--taxid', metavar="INT", required=True, help='Target taxonomic ID')
+input.add_argument('db', help="sqlite formatted ETE3 taxa database")
+input.add_argument('taxid', metavar="INT", required=True, help='Target taxonomic ID')
 
 if len(sys.argv) == 1:
     parser.print_usage()
@@ -33,7 +34,7 @@ output = open("outlier_list.txt", "w")
 outlier_flag = False
 accession = ""
 
-ncbi = NCBITaxa()
+ncbi = NCBITaxa(args.db)
 descendants = ncbi.get_descendant_taxa(args.taxid, intermediate_nodes=True)
 
 for report in args.input: 

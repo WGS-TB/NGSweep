@@ -4,11 +4,11 @@
         <requirement type="package" version="3.1.1">ete3</requirement>
     </requirements>
     <command><![CDATA[
-        $__tool_directory__/refseq_parser -i #for $report in $reports# $report #end for# --taxid $taxid
+        $__tool_directory__/refseq_parser -i #for $report in $reports# $report #end for# $db $taxid
     ]]></command>
     <inputs>
+        <param name="db" type="data" format="sqlite" label="(ETE3) Taxonomy Database"/>
         <param name="reports" type="data" format="tabular" label="Refseq_masher report" help="" optional="false" multiple="True" />
-        <!--<param name="reference" type="data" format="fasta" label="FASTA reference genome" help="" optional="false" />-->
         <param name="taxid" type="integer" value="0" label="Taxonomic ID of target taxonomic rank" optional="false"/>
     </inputs>
     <outputs>
@@ -17,7 +17,6 @@
 
     <tests>
         <test>
-            <!--<param name="reference" value="reference.fna.gz" ftype="fasta" />-->
             <param name="report" value="test.tsv" ftype="tabular" />
             <output name="output" value="output.tsv" ftype="tabular" />
         </test>
