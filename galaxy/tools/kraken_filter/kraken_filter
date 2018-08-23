@@ -29,7 +29,7 @@ def parse_kraken_results(db, report, taxid):
     return kraken_class
 
 
-def kraken_trim(db, report, taxid, paired, fastq, fastq2, accession):
+def kraken_trim(db, report, taxid, paired, fastq, fastq2):
     kraken = parse_kraken_results(db, report, taxid)
 
     # Write new fastq file
@@ -39,7 +39,7 @@ def kraken_trim(db, report, taxid, paired, fastq, fastq2, accession):
         files = [fastq]
     for index,fastq_in in enumerate(files):
         with open(fastq_in, 'r') as f_in:
-            with open(os.path.join('kraken_filtered', '%s_%d.fastq' % (accession, index)), 'w') as f_out:
+            with open('input_%d.fastq' % (index+1), 'w') as f_out:
                  for line in f_in:
                     # Split ID with space, then remove "/1" or "/2" if it exists and ignore initial @
                     read_id = line.split(" ")[0].split("/")[0][1:]
@@ -56,7 +56,6 @@ parser = ap.ArgumentParser(prog='kraken_trim', conflict_handler='resolve',
 
 input = parser.add_argument_group('Input', '')
 input.add_argument('db', help="sqlite formatted ETE3 taxa database")
-input.add_argument('accession', help="Sample accession")
 input.add_argument('report', help="Kraken report")
 input.add_argument('taxid', type=int, help="Target taxonomic ID")
 input.add_argument('fastq', help="FASTQ file")
@@ -69,7 +68,4 @@ if len(sys.argv) == 1:
 
 args = parser.parse_args()
 
-if not os.path.exists('kraken_filtered'):
-    os.makedirs('kraken_filtered')
-
-kraken_trim(args.db, args.report, args.taxid, args.p, args.fastq, args.fastq2, args.accession)
+kraken_trim(args.db, args.report, args.taxid, args.p, args.fastq, args.fastq2)
