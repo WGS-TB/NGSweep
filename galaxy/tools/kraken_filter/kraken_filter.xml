@@ -31,18 +31,18 @@
                 <option value="paired_collection">Paired Collection</option>
             </param>
             <when value="paired">
-                <param name="fastq1" type="data" format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta"
+                <param name="fastq1" type="data" format="fastqsanger,fastq"
                        label="Select fastq dataset with forward reads"/>
-                <param name="fastq2" type="data" format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta"
+                <param name="fastq2" type="data" format="fastqsanger,fastq"
                        label="Select fastq dataset with reverse reads"/>
             </when>
             <when value="single">
-                <param name="fastq1" type="data" format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta"
+                <param name="fastq1" type="data" format="fastqsanger,fastq"
                        label="Select fastq dataset"/>
             </when>
             <when value="paired_collection">
                 <param name="fastq1" type="data_collection" collection_type="paired"
-                       format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta" label="Select paired collection"/>
+                       format="fastqsanger,fastq" label="Select paired collection"/>
             </when>
         </conditional>
         <param name="db" type="data" format="sqlite" label="(ETE3) Taxonomy Database"/>
@@ -50,16 +50,16 @@
         <param name="taxid" type="integer" value="0" label="Taxonomic ID of target taxonomic rank" optional="false"/>
     </inputs>
     <outputs>
-        <data name="fastq1_trim" label="Trimmed FASTQ on ${on_string}" format="fastqsanger.gz"
-              from_work_dir="kraken_trim/${fastq1.element_identifier}.fastq.gz">
+        <data name="fastq1_trim" label="Trimmed FASTQ on ${on_string}" format="fastqsanger"
+              from_work_dir="kraken_trim/${fastq1.element_identifier}.fastq">
             <filter>fastq_input['input_type'] == 'single'</filter>
         </data>
-        <data name="fastq1_trim" label="Trimmed FASTQ on ${on_string}" format="fastqsanger.gz"
-              from_work_dir="kraken_trim/${fastq1.element_identifier}_1.fastq.gz">
+        <data name="fastq1_trim" label="Trimmed FASTQ on ${on_string}" format="fastqsanger"
+              from_work_dir="kraken_trim/${fastq1.element_identifier}_1.fastq">
             <filter>fastq_input['input_type'] == 'paired' or fastq_input['input_type'] == 'paired_collection'</filter>
         </data>
-        <data name="fastq2_trim" label="Trimmed FASTQ (reverse mate) on ${on_string}" format="fastqsanger.gz"
-              from_work_dir="kraken_trim/${fastq1.element_identifier}_2.fastq.gz">
+        <data name="fastq2_trim" label="Trimmed FASTQ (reverse mate) on ${on_string}" format="fastqsanger"
+              from_work_dir="kraken_trim/${fastq1.element_identifier}_2.fastq">
             <filter>fastq_input['input_type'] == 'paired' or fastq_input['input_type'] == 'paired_collection'</filter>
         </data>
     </outputs>
