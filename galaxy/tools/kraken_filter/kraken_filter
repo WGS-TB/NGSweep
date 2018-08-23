@@ -18,7 +18,7 @@ def openfile(file, mode='r'):
 def parse_kraken_results(report, taxid):
     kraken = {}  # Store classification for each read
     ncbi = NCBITaxa()
-    descendants = ncbi.get_descendant_taxa(taxid)
+    descendants = set(ncbi.get_descendant_taxa(taxid))
 
     with open(report, 'r') as classification:
         for line in classification:
@@ -39,7 +39,7 @@ def parse_kraken_results(report, taxid):
     return kraken_class
 
 
-def kraken_trim(report, taxid, paired, fastq, fastq2):
+def kraken_trim(report, taxid, paired, fastq, fastq2, accession):
     kraken = parse_kraken_results(report, taxid)
 
     # Write new fastq file
@@ -47,12 +47,12 @@ def kraken_trim(report, taxid, paired, fastq, fastq2):
         files = [fastq, fastq2]
     else:
         files = [fastq]
-    for fastq_in in files:
+    for index,fastq_in in enumerate(files):
         with openfile(fastq_in) as f_in:
             fastq_out = os.path.split(fastq_in)[1]
             if fastq_out[-3:] == ".gz":  # Eliminate .gz from filename
                 fastq_out = fastq_out[:-3]
-            with open(os.path.join('kraken_filtered', '%s' % fastq_out), 'w') as f_out:
+            with open(os.path.join('kraken_filtered', '%s_%d.fastq' % (accession, index)), 'w') as f_out:
                  for line in f_in:
                     # Split ID with space, then remove "/1" or "/2" if it exists and ignore initial @
                     read_id = line.decode('utf-8').split(" ")[0].split("/")[0][1:]
@@ -65,13 +65,14 @@ def kraken_trim(report, taxid, paired, fastq, fastq2):
                             f_in.readline()
 
         # Zip output files
-        with gzip.open(os.path.join('kraken_filtered', '%s.gz' % fastq_out), 'wb') as gzipped:
+        with gzip.open(os.path.join('kraken_filtered', '%s_%d.gz' % (accession, index)), 'wb') as gzipped:
             shutil.copyfileobj(fastq_out, gzipped)
 
 parser = ap.ArgumentParser(prog='kraken_trim', conflict_handler='resolve',
                            description="Trims contaminated reads using Kraken reports")
 
 input = parser.add_argument_group('Input', '')
+input.add_argument('accession', help="Sample accession")
 input.add_argument('report', help="Kraken report")
 input.add_argument('taxid', type=int, help="Target taxonomic ID")
 input.add_argument('fastq', help="FASTQ file")
@@ -87,4 +88,4 @@ args = parser.parse_args()
 if not os.path.exists('kraken_filtered'):
     os.makedirs('kraken_filtered')
 
-kraken_trim(args.report, args.taxid, args.paired, args.fastq, args.fastq2)
+kraken_trim(args.report, args.taxid, args.paired, args.fastq, args.fastq2, args.accession)

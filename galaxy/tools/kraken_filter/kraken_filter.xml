@@ -4,7 +4,23 @@
         <requirement type="package" version="3.1.1">ete3</requirement>
     </requirements>
     <command><![CDATA[
-        $__tool_directory__/refseq_parser -i #for $report in $reports# $report #end for# --taxid $taxid
+        $__tool_directory__/kraken_filter
+
+        #if $fastq_input.input_type == "paired" or $fastq_input.input_type == "paired_collection"
+            "--p"
+        #end if
+
+        "${fastq_input.fastq1.element_identifier}"
+        "${reports}"
+        "${taxid}"
+
+        #if $fastq_input.input_type == "single"
+            "${fastq_input.fastq1}"
+        #elif $fastq_input.input_type == "paired"
+            "${fastq_input.fastq1}" "${fastq_input.fastq2}"
+        #elif $fastq_input.input_type == "paired_collection"
+            "${fastq_input.fastq1.forward}" "${fastq_input.fastq1.reverse}"
+        #end if
     ]]></command>
     <inputs>
         <conditional name="fastq_input">
@@ -12,7 +28,6 @@
                 <option value="paired">Paired</option>
                 <option value="single">Single</option>
                 <option value="paired_collection">Paired Collection</option>
-                <option value="single_collection">Single Collection</option>
             </param>
             <when value="paired">
                 <param name="fastq1" type="data" format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta"
@@ -28,19 +43,23 @@
                 <param name="fastq1" type="data_collection" collection_type="paired"
                        format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta" label="Select paired collection"/>
             </when>
-            <when value="single_collection">
-                <param name="fastq1" type="data_collection" collection_type="list"
-                       format="fastqsanger,fastqsanger.gz,fastq,fastq.gz,fasta" label="Select single collection"
-            </when>
         </conditional>
-        <param name="reports" type="data" format="tabular" label="Refseq_masher report" help="" optional="false" multiple="True" />
-        <param name="taxid" type="integer" label="Taxonomic ID of target taxonomic rank" optional="false"/>
+        <param name="reports" type="data" format="tabular" label="Refseq_masher report" help="" optional="false"/>
+        <param name="taxid" type="integer" value="0" label="Taxonomic ID of target taxonomic rank" optional="false"/>
     </inputs>
     <outputs>
-        <data name="fastq_trim" label="Trimmed FASTQ" format="fastqsanger.gz"
-              from_work_dir="kraken_trim/$fastq1"/>
-        <data name="fastq2_trim"  label="Trimmed FASTQ (reverse mate)" format="fastqsanger.gz"
-              from_work_dir="kraken_trim/$fastq2"/>
+        <data name="fastq1_trim" label="Trimmed FASTQ on ${on_string}" format="fastqsanger.gz"
+              from_work_dir="kraken_trim/${fastq1.element_identifier}.fastq.gz">
+            <filter>fastq_input['input_type'] == 'single'</filter>
+        </data>
+        <data name="fastq1_trim" label="Trimmed FASTQ on ${on_string}" format="fastqsanger.gz"
+              from_work_dir="kraken_trim/${fastq1.element_identifier}_1.fastq.gz">
+            <filter>fastq_input['input_type'] == 'paired' or fastq_input['input_type'] == 'paired_collection'</filter>
+        </data>
+        <data name="fastq2_trim" label="Trimmed FASTQ (reverse mate) on ${on_string}" format="fastqsanger.gz"
+              from_work_dir="kraken_trim/${fastq1.element_identifier}_2.fastq.gz">
+            <filter>fastq_input['input_type'] == 'paired' or fastq_input['input_type'] == 'paired_collection'</filter>
+        </data>
     </outputs>
 
     <tests>
