@@ -11,7 +11,7 @@
         #end if
 
         "${db}"
-        "${reports}"
+        "${report}"
         "${taxid}"
 
         #if $fastq_input.input_type == "single"
@@ -45,18 +45,18 @@
             </when>
         </conditional>
         <param name="db" type="data" format="sqlite" label="(ETE3) Taxonomy Database"/>
-        <param name="reports" type="data" format="tabular" label="Kraken report" help="" optional="false"/>
+        <param name="report" type="data" format="tabular" label="Kraken report" help="" optional="false"/>
         <param name="taxid" type="integer" value="0" label="Taxonomic ID of target taxonomic rank" optional="false"/>
     </inputs>
     <outputs>
-        <data name="fastq1_trim" label="${tool.name} on ${on_string}" format_source="fastq1"
-              from_work_dir="input.fastq">
+        <data name="fastq_trim" label="${tool.name} on ${on_string}" format_source="fastq1"
+              from_work_dir="input_1.fastq">
             <filter>fastq_input['input_type'] == 'single'</filter>
         </data>
 
         <collection name="trimmed_paired_collection" type="paired" label="${tool.name} on ${on_string}">
-            <data name="fastq1_trim" format_source="fastq1['forward']" from_work_dir="input_1.fastq"/>
-            <data name="fastq2_trim" format_source="fastq1['forward']" from_work_dir="input_2.fastq"/>
+            <data name="forward" format_source="fastq1['forward']" from_work_dir="input_1.fastq"/>
+            <data name="reverse" format_source="fastq1['forward']" from_work_dir="input_2.fastq"/>
             <filter>fastq_input['input_type'] == 'paired_collection'</filter>
         </collection>
 
@@ -77,6 +77,10 @@
     </tests>
 
     <help><![CDATA[
+    Trims contaminated reads from Next-Generation Sequencing data using Kraken outputs.
+
+    Command line:
+    kraken_filter [--p] <ETE3 taxonomy database> <kraken report> <taxid> <fastq> [fastq_reverse]
 
     ]]></help>
 
