@@ -32,7 +32,7 @@ class preprocess():
         self.logger = logging.getLogger()
         self.outlier_file = open(outdir+'/outlier_list.txt', 'a')
         self.ncbi = NCBITaxa()
-        self.descendants = self.ncbi.get_descendant_taxa(self.taxid, intermediate_nodes=True)
+        self.descendants = set(self.ncbi.get_descendant_taxa(self.taxid, intermediate_nodes=True))
 
     """Shell Execution"""
     def runCommand(self, command, directory, write_output):
