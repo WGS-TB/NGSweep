@@ -13,22 +13,15 @@ parser = ap.ArgumentParser(prog='outlier-parser', conflict_handler='resolve',
 
 
 input = parser.add_argument_group('Input', '')
-input.add_argument('-i', '--input', nargs='+', required=True, help="Tab-delimited RefSeq Masher reports")
 input.add_argument('db', help="sqlite formatted ETE3 taxa database")
-input.add_argument('taxid', metavar="INT", required=True, help='Target taxonomic ID')
+input.add_argument('taxid', metavar="INT", help='Target taxonomic ID')
+input.add_argument('input', nargs='+', help="Tab-delimited RefSeq Masher reports")
 
 if len(sys.argv) == 1:
     parser.print_usage()
     sys.exit(1)
 
 args = parser.parse_args()
-
-"""Determining organism"""
-try:
-    meta = gzip.open(args.reference, 'rb').readline().split()
-except:
-    meta = open(args.reference, 'rb').readline().split()
-organism = "%s %s" % (meta[1].decode('utf-8'), meta[2].decode('utf-8'))
 
 output = open("outlier_list.txt", "w")
 outlier_flag = False

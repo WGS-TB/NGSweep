@@ -1,10 +1,10 @@
-<tool id="parse_refseq_masher" name="Parse refseq_masher output" version="0.1.0">
+<tool id="parse_refseq_masher" name="Parse refseq_masher matches collection" version="0.1.0">
     <description>and output a list of outliers</description>
     <requirements>
         <requirement type="package" version="3.1.1">ete3</requirement>
     </requirements>
     <command><![CDATA[
-        $__tool_directory__/refseq_parser -i #for $report in $reports# $report #end for# $db $taxid
+        $__tool_directory__/refseq_parser $db $taxid #for $report in $reports# $report #end for#
     ]]></command>
     <inputs>
         <param name="db" type="data" format="sqlite" label="(ETE3) Taxonomy Database"/>
@@ -29,7 +29,7 @@
         2. If the distance between the match and the sample is >0.05
 
         Command line:
-        refseq_parser -i <mash_output.tsv> --taxid <taxonomic_id>
+        refseq_parser <ETE3 taxonomy database> <taxid> [input refseq_masher reports ...]
     ]]></help>
 
     <citations>
