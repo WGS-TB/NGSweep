@@ -36,26 +36,3 @@ for index,report in enumerate(args.input):
         if float(mapped_percentage) < 90 or float(mean_mapping_quality) < 10:
             output.write("%s\n" % args.name[index])
 
-"""For parsing HTML file"""
-# for file in args.input:
-#     with open(file, 'r') as report:
-#         iterable = iter(report)
-#
-#         for line in iterable:
-#             if "BAM file:" in line and not accession:
-#                 line = next(iterable)
-#                 accession = line.split('</td>')[0].strip("<td class=column2>")
-#                 continue
-#
-#             if "Mapped reads" in line and not mapped_percentage:
-#                 line = next(iterable)
-#                 mapped_percentage = line.split('</td')[0].strip("<td class=column2>").split()[2].strip("%")
-#                 continue
-#
-#             if "Mean Mapping Quality" in line and not mean_mapping_quality:
-#                 line = next(iterable)
-#                 mean_mapping_quality = line.split('</td>')[0].strip("<td class=column2>")
-#                 break
-#
-#         if float(mapped_percentage) < 90 or float(mean_mapping_quality) < 10:
-#             output.write("%s\n" % accession[:accession.find(".")])

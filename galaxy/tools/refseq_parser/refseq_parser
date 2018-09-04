@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-# Usage: refseq_parser -i <reports> --taxid <taxonomic ID>
-
 import sys
 import csv
-import gzip
 import argparse as ap
 from ete3 import NCBITaxa
 

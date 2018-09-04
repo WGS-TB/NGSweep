@@ -13,12 +13,19 @@
 
     <tests>
         <test>
-            <param name="report" value="test.tsv" ftype="tabular" />
-            <output name="output" value="output.tsv" ftype="tabular" />
+
         </test>
     </tests>
 
-    <help>
+    <help><![CDATA[
+    Parses Qualimap reports and outputs a list of outliers based on percentage of the reference genome covered and mean mapping quality.
 
-    </help>
+    Command line:
+    qualimap_parser -n <accessions> -i <reports>
+
+    ]]></help>
+
+    <citations>
+        Manuscript in preparation
+    </citations>
 </tool>
