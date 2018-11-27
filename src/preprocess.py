@@ -50,7 +50,7 @@ class preprocess():
     def refseq_masher(self):
         self.ifVerbose("Running Refseq_masher matching")
         self.runCommand(['refseq_masher', 'matches', '-o', self.name+'.match', '--output-type', 'tab', self.input,
-                         '-n', self.n_results+5],
+                         '-n', str(self.n_results+5)],
                         os.path.join(self.outdir, 'mash'), write_output=False)
 
     """Running Kraken"""
